@@ -1,0 +1,148 @@
+#!/bin/bash
+
+rm -rf ${PWD}/srv1/.ssh
+rm -rf ${PWD}/srv1/mnt/data
+rm -rf ${PWD}/srv1/mnt/archive
+
+rm -rf ${PWD}/srv2/.ssh
+rm -rf ${PWD}/srv2/mnt/data
+rm -rf ${PWD}/srv2/mnt/data_temp
+rm -rf ${PWD}/srv2/mnt/archive
+
+docker stop srv1
+docker rm srv1
+docker stop srv2
+docker rm srv2
+docker network rm postgresnet
+
+docker network create postgresnet
+
+docker image rm pspemik
+docker build -t pspemik ${PWD}/Docker
+
+docker run \
+    --net postgresnet \
+    --name srv1 \
+    -e POSTGRES_USER=postgres \
+    -e POSTGRES_PASSWORD=pass \
+    -e POSTGRES_DB=postgres \
+    -e PGDATA="/mnt/data" \
+    -p 5431:5432 \
+    -v ${PWD}/srv1//mnt/config:/mnt/config \
+    -v ${PWD}/srv1//mnt/data:/mnt/data \
+    -v ${PWD}/srv1//mnt/archive:/mnt/archive \
+    -v ${PWD}/srv1/.ssh:/.ssh \
+    -v ${PWD}/srv2/.ssh:/mnt/ssh/ \
+    -d pspemik \
+    -c "config_file=/mnt/config/postgresql.conf"
+
+while true; do
+    row_count=$(docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
+    if [ -n "$row_count" ]
+    then
+        if [ "$row_count" -gt 0 ]; then
+          break
+        fi
+    else
+        echo "waiting for srv1 to start..."
+        sleep 1
+    fi
+done
+
+docker exec -u postgres srv1 createuser -s repmgr
+docker exec -u postgres srv1 createdb repmgr -O repmgr
+docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with password 'pass';"
+docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with replication;"
+docker exec -u postgres srv1 ssh-keygen -q -t rsa -b 4096 -N '' -f /.ssh/id_rsa
+docker exec -u postgres srv1 bash -c "cat /.ssh/id_rsa.pub >> /.ssh/authorized_keys"
+docker exec -u postgres srv1 repmgr -f /mnt/config/repmgr.conf primary register
+docker exec -u postgres srv1 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass"
+docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;" 
+
+docker run \
+    --net postgresnet \
+    --name srv2 \
+    -e POSTGRES_USER=postgres \
+    -e POSTGRES_PASSWORD=pass \
+    -e POSTGRES_DB=postgres \
+    -e PGDATA="/mnt/data_temp" \
+    -p 5432:5432 \
+    -v ${PWD}/srv2//mnt/config:/mnt/config \
+    -v ${PWD}/srv2//mnt/data_temp:/mnt/data_temp \
+    -v ${PWD}/srv2//mnt/data:/mnt/data \
+    -v ${PWD}/srv2//mnt/archive:/mnt/archive \
+    -v ${PWD}/srv2/.ssh:/.ssh \
+    -v ${PWD}/srv1/.ssh:/mnt/ssh/ \
+    -d pspemik \
+    -c "config_file=/mnt/config/postgresql.conf"
+
+while true; do
+    row_count=$(docker exec srv2 psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
+    if [ -n "$row_count" ]
+    then
+        if [ "$row_count" -gt 0 ]; then
+          break
+        fi
+    else
+        echo "waiting for srv2 to start..."
+        sleep 1
+    fi
+done
+
+docker exec -u postgres srv2 ssh-keygen -q -t rsa -b 4096 -N '' -f /.ssh/id_rsa
+docker exec -u postgres srv2 bash -c "cat /.ssh/id_rsa.pub >> /.ssh/authorized_keys"
+docker exec -u postgres srv1 bash -c "cat /mnt/ssh/id_rsa.pub >> /.ssh/authorized_keys"
+docker exec -u postgres srv2 bash -c "cat /mnt/ssh/id_rsa.pub >> /.ssh/authorized_keys"
+docker exec -u postgres srv2 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass"
+docker exec -u postgres srv2 repmgr -f /mnt/config/repmgr.conf -h srv1 -U repmgr -d repmgr standby clone -F -c
+docker exec -u postgres srv2 /usr/lib/postgresql/17/bin/pg_ctl -D /mnt/data_temp stop
+
+docker rm srv2
+rm -rf ${PWD}/srv2/mnt/data_temp
+
+docker run \
+    --net postgresnet \
+    --name srv2 \
+    -e POSTGRES_USER=postgres \
+    -e POSTGRES_PASSWORD=pass \
+    -e POSTGRES_DB=postgres \
+    -e PGDATA="/mnt/data" \
+    -p 5432:5432 \
+    -v ${PWD}/srv2//mnt/config:/mnt/config \
+    -v ${PWD}/srv2//mnt/data:/mnt/data \
+    -v ${PWD}/srv2//mnt/archive:/mnt/archive \
+    -v ${PWD}/srv2/.ssh:/.ssh \
+    -v ${PWD}/srv1/.ssh:/mnt/ssh/ \
+    -d pspemik \
+    -c "config_file=/mnt/config/postgresql.conf"
+
+while true; do
+    row_count=$(docker exec srv2 psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
+    if [ -n "$row_count" ]
+    then
+        if [ "$row_count" -gt 0 ]; then
+          break
+        fi
+    else
+        echo "waiting for srv2 to start..."
+        sleep 1
+    fi
+done
+
+docker exec -u postgres srv2 repmgr -f /mnt/config/repmgr.conf standby register --upstream-node-id=1
+docker exec srv2 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;" 
+
+SRV1_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv1)
+SRV2_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv2)
+
+echo "IP ADDRESSES"
+echo "srv1 : $SRV1_IP"
+echo "srv2 : $SRV2_IP"
+
+echo "PORTS MAPPING"
+echo "srv1 : 5432:5431"
+echo "srv2 : 5432:5432"
+
+echo "PASSWORDS"
+echo "repmgr/pass"
+echo "postgres/pass"
