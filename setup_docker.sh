@@ -38,6 +38,7 @@ docker run \
     -v ${PWD}/srv1/mnt/archive:/mnt/archive \
     -v ${PWD}/srv1/.ssh:/.ssh \
     -v ${PWD}/srv2/.ssh:/mnt/ssh/ \
+    -v ${PWD}/sql/:/mnt/sql/ \
     -d pspemik \
     -c "config_file=/mnt/config/postgresql.conf"
 
@@ -56,16 +57,16 @@ done
 
 docker exec -u postgres srv1 createuser -s repmgr
 docker exec -u postgres srv1 createdb repmgr -O repmgr
-docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with password 'pass';"
+docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with password 'pass';"
 docker exec -u postgres srv1 createuser -s cms
 docker exec -u postgres srv1 createdb cms -O cms
-docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user cms with password 'pass';"
-docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with replication;"
+docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user cms with password 'pass';"
+docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with replication;"
 docker exec -u postgres srv1 ssh-keygen -q -t rsa -b 4096 -N '' -f /.ssh/id_rsa
 docker exec -u postgres srv1 bash -c "cat /.ssh/id_rsa.pub >> /.ssh/authorized_keys"
 docker exec -u postgres srv1 repmgr -f /mnt/config/repmgr.conf primary register
 docker exec -u postgres srv1 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass"
-docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;"
+docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;"
 
 docker run \
     --net postgresnet \

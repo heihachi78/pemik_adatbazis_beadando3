@@ -8,3 +8,4 @@ srv2/mnt/data_temp
 pgadmin/azurecredentialcache
 pgadmin/sessions
 .venv
+**/__pycache__
