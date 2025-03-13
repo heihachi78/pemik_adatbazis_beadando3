@@ -1,0 +1,6 @@
+srv1/.ssh
+srv1/mnt/archive
+srv1/mnt/data
+srv2/.ssh
+srv2/mnt/archive
+srv2/mnt/data
