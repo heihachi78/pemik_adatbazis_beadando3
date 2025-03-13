@@ -67,7 +67,7 @@ def show_info():
                 return None
 
         def shutdown_docker_host():
-            os.system("docker stop postgres-1")
+            os.system("docker stop srv1")
 
         def restart_docker_host():
             os.system("docker restart pgpool")

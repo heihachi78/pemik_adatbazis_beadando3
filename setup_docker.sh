@@ -23,7 +23,7 @@ docker network rm postgresnet
 docker network create postgresnet
 
 docker image rm pspemik
-docker build -t pspemik ${PWD}/Docker
+docker build -t pspemik ${PWD}/DockerPostgres
 
 docker run \
     --net postgresnet \
@@ -142,6 +142,9 @@ docker exec -u postgres srv2 repmgr -f /mnt/config/repmgr.conf standby register 
 docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -q -c "ALTER SYSTEM SET synchronous_standby_names = 'srv2';"
 docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -q -c "SELECT pg_reload_conf();"
 
+docker exec -u postgres srv1 repmgr daemon start -f /mnt/config/repmgr.conf
+docker exec -u postgres srv2 repmgr daemon start -f /mnt/config/repmgr.conf
+
 docker run \
     --net postgresnet \
     --name pgadmin \
@@ -163,11 +166,10 @@ echo "pgadmin : $ADMIN_IP"
 echo "PORTS MAPPING"
 echo "srv1 : 5432:5431"
 echo "srv2 : 5432:5432"
-echo "srv2 : 80:8080"
+echo "pgadmin : 80:8080"
 
 echo "PASSWORDS"
 echo "repmgr/pass"
 echo "postgres/pass"
 echo "cms/pass"
 echo "beadando@pemik.hu/pass"
-

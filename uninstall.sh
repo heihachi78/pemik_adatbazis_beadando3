@@ -1,3 +1,5 @@
+#!/bin/bash
+
 rm -rf ${PWD}/srv1/.ssh
 rm -rf ${PWD}/srv1/mnt/data
 rm -rf ${PWD}/srv1/mnt/archive
