@@ -9,10 +9,15 @@ rm -rf ${PWD}/srv2/mnt/data
 rm -rf ${PWD}/srv2/mnt/data_temp
 rm -rf ${PWD}/srv2/mnt/archive
 
+rm -rf ${PWD}/pgadmin/azurecredentialcache
+rm -rf ${PWD}/pgadmin/sessions
+
 docker stop srv1
 docker rm srv1
 docker stop srv2
 docker rm srv2
+docker stop pgadmin
+docker rm pgadmin
 docker network rm postgresnet
 
 docker network create postgresnet
@@ -28,9 +33,9 @@ docker run \
     -e POSTGRES_DB=postgres \
     -e PGDATA="/mnt/data" \
     -p 5431:5432 \
-    -v ${PWD}/srv1//mnt/config:/mnt/config \
-    -v ${PWD}/srv1//mnt/data:/mnt/data \
-    -v ${PWD}/srv1//mnt/archive:/mnt/archive \
+    -v ${PWD}/srv1/mnt/config:/mnt/config \
+    -v ${PWD}/srv1/mnt/data:/mnt/data \
+    -v ${PWD}/srv1/mnt/archive:/mnt/archive \
     -v ${PWD}/srv1/.ssh:/.ssh \
     -v ${PWD}/srv2/.ssh:/mnt/ssh/ \
     -d pspemik \
@@ -52,12 +57,15 @@ done
 docker exec -u postgres srv1 createuser -s repmgr
 docker exec -u postgres srv1 createdb repmgr -O repmgr
 docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with password 'pass';"
+docker exec -u postgres srv1 createuser -s cms
+docker exec -u postgres srv1 createdb cms -O cms
+docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user cms with password 'pass';"
 docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "alter user repmgr with replication;"
 docker exec -u postgres srv1 ssh-keygen -q -t rsa -b 4096 -N '' -f /.ssh/id_rsa
 docker exec -u postgres srv1 bash -c "cat /.ssh/id_rsa.pub >> /.ssh/authorized_keys"
 docker exec -u postgres srv1 repmgr -f /mnt/config/repmgr.conf primary register
 docker exec -u postgres srv1 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass"
-docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;" 
+docker exec srv1 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;"
 
 docker run \
     --net postgresnet \
@@ -67,10 +75,10 @@ docker run \
     -e POSTGRES_DB=postgres \
     -e PGDATA="/mnt/data_temp" \
     -p 5432:5432 \
-    -v ${PWD}/srv2//mnt/config:/mnt/config \
-    -v ${PWD}/srv2//mnt/data_temp:/mnt/data_temp \
-    -v ${PWD}/srv2//mnt/data:/mnt/data \
-    -v ${PWD}/srv2//mnt/archive:/mnt/archive \
+    -v ${PWD}/srv2/mnt/config:/mnt/config \
+    -v ${PWD}/srv2/mnt/data_temp:/mnt/data_temp \
+    -v ${PWD}/srv2/mnt/data:/mnt/data \
+    -v ${PWD}/srv2/mnt/archive:/mnt/archive \
     -v ${PWD}/srv2/.ssh:/.ssh \
     -v ${PWD}/srv1/.ssh:/mnt/ssh/ \
     -d pspemik \
@@ -108,9 +116,9 @@ docker run \
     -e POSTGRES_DB=postgres \
     -e PGDATA="/mnt/data" \
     -p 5432:5432 \
-    -v ${PWD}/srv2//mnt/config:/mnt/config \
-    -v ${PWD}/srv2//mnt/data:/mnt/data \
-    -v ${PWD}/srv2//mnt/archive:/mnt/archive \
+    -v ${PWD}/srv2/mnt/config:/mnt/config \
+    -v ${PWD}/srv2/mnt/data:/mnt/data \
+    -v ${PWD}/srv2/mnt/archive:/mnt/archive \
     -v ${PWD}/srv2/.ssh:/.ssh \
     -v ${PWD}/srv1/.ssh:/mnt/ssh/ \
     -d pspemik \
@@ -130,19 +138,35 @@ while true; do
 done
 
 docker exec -u postgres srv2 repmgr -f /mnt/config/repmgr.conf standby register --upstream-node-id=1
-docker exec srv2 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;" 
+docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -q -c "ALTER SYSTEM SET synchronous_standby_names = 'srv2';"
+docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -q -c "SELECT pg_reload_conf();"
+
+docker run \
+    --net postgresnet \
+    --name pgadmin \
+    -p 8080:80 \
+    -e PGADMIN_DEFAULT_EMAIL=beadando@pemik.hu \
+    -e PGADMIN_DEFAULT_PASSWORD=pass \
+    -v ${PWD}/pgadmin:/var/lib/pgadmin \
+    -d dpage/pgadmin4
 
 SRV1_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv1)
 SRV2_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv2)
+ADMIN_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pgadmin)
 
 echo "IP ADDRESSES"
 echo "srv1 : $SRV1_IP"
 echo "srv2 : $SRV2_IP"
+echo "pgadmin : $ADMIN_IP"
 
 echo "PORTS MAPPING"
 echo "srv1 : 5432:5431"
 echo "srv2 : 5432:5432"
+echo "srv2 : 80:8080"
 
 echo "PASSWORDS"
 echo "repmgr/pass"
 echo "postgres/pass"
+echo "cms/pass"
+echo "beadando@pemik.hu/pass"
+
