@@ -10,6 +10,8 @@ rm -rf ${PWD}/srv2/mnt/archive
 rm -rf ${PWD}/pgadmin/azurecredentialcache
 rm -rf ${PWD}/pgadmin/sessions
 
+rm -r ${PWD}/.venv
+
 docker stop srv1
 docker rm srv1
 docker stop srv2

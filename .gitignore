@@ -7,3 +7,4 @@ srv2/mnt/data
 srv2/mnt/data_temp
 pgadmin/azurecredentialcache
 pgadmin/sessions
+.venv
