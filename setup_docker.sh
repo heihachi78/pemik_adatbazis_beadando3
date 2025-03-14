@@ -16,14 +16,18 @@ docker stop srv1
 docker rm srv1
 docker stop srv2
 docker rm srv2
-docker stop pgadmin
-docker rm pgadmin
+docker stop pga
+docker rm pga
+docker stop pgp
+docker rm pgp
 docker network rm postgresnet
 
 docker network create postgresnet
 
-docker image rm pspemik
-docker build -t pspemik ${PWD}/DockerPostgres
+docker image rm pgs
+docker image rm pgp
+docker build -t pgs ${PWD}/DockerPostgres
+docker build -t pgp ${PWD}/DockerPgPool
 
 docker run \
     --net postgresnet \
@@ -39,7 +43,7 @@ docker run \
     -v ${PWD}/srv1/.ssh:/.ssh \
     -v ${PWD}/srv2/.ssh:/mnt/ssh/ \
     -v ${PWD}/sql/:/mnt/sql/ \
-    -d pspemik \
+    -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
 while true; do
@@ -82,7 +86,7 @@ docker run \
     -v ${PWD}/srv2/mnt/archive:/mnt/archive \
     -v ${PWD}/srv2/.ssh:/.ssh \
     -v ${PWD}/srv1/.ssh:/mnt/ssh/ \
-    -d pspemik \
+    -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
 while true; do
@@ -122,7 +126,7 @@ docker run \
     -v ${PWD}/srv2/mnt/archive:/mnt/archive \
     -v ${PWD}/srv2/.ssh:/.ssh \
     -v ${PWD}/srv1/.ssh:/mnt/ssh/ \
-    -d pspemik \
+    -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
 while true; do
@@ -147,26 +151,37 @@ docker exec -u postgres srv2 repmgr daemon start -f /mnt/config/repmgr.conf
 
 docker run \
     --net postgresnet \
-    --name pgadmin \
+    --name pga \
     -p 8080:80 \
     -e PGADMIN_DEFAULT_EMAIL=beadando@pemik.hu \
     -e PGADMIN_DEFAULT_PASSWORD=pass \
     -v ${PWD}/pgadmin:/var/lib/pgadmin \
     -d dpage/pgadmin4
 
+docker run \
+    --net postgresnet \
+    --name pgp \
+    -p 5433:5432 \
+    -e NODES="srv1 srv2" \
+    -v ${PWD}/pgpool/mnt/config/:/mnt/config \
+    -d pgp
+
 SRV1_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv1)
 SRV2_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv2)
-ADMIN_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pgadmin)
+ADMIN_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pga)
+PGPOOL_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pgp)
 
 echo "IP ADDRESSES"
 echo "srv1 : $SRV1_IP"
 echo "srv2 : $SRV2_IP"
 echo "pgadmin : $ADMIN_IP"
+echo "pgpool : $PGPOOL_IP"
 
 echo "PORTS MAPPING"
 echo "srv1 : 5432:5431"
 echo "srv2 : 5432:5432"
 echo "pgadmin : 80:8080"
+echo "pgpool : 5432:5433"
 
 echo "PASSWORDS"
 echo "repmgr/pass"

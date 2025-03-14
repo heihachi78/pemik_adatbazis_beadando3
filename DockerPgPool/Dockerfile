@@ -1,10 +1,19 @@
 FROM debian
 
+ENV NODES=""
+
 RUN apt-get update && apt-get upgrade
 COPY apt.postgresql.org.sh .
 RUN chmod +x apt.postgresql.org.sh
 RUN ./apt.postgresql.org.sh
-RUN apt-get update
-RUN apt-get -y install pgpool2
-RUN apt-get -y install libpgpool2
-RUN apt-get -y install postgresql-15-pgpool2
+RUN apt-get install -y pgpool2
+RUN apt-get install -y postgresql-client
+RUN apt-get install -y netcat-openbsd
+RUN apt-get clean
+RUN rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+
+COPY waitfordb.sh /waitfordb.sh
+RUN chmod +x /waitfordb.sh
+
+ENTRYPOINT ["/waitfordb.sh"]
+CMD ["/bin/bash", "-c", "exec pgpool -n -f /mnt/config/pgpool.conf -a /mnt/config/pool_hba.conf"]

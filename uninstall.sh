@@ -18,8 +18,11 @@ docker stop srv1
 docker rm srv1
 docker stop srv2
 docker rm srv2
-docker stop pgadmin
-docker rm pgadmin
+docker stop pga
+docker rm pga
+docker stop pgp
+docker rm pgp
 docker network rm postgresnet
-docker image rm pspemik
+docker image rm pgs
+docker image rm pgp
 docker image rm dpage/pgadmin4
