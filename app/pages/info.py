@@ -24,7 +24,7 @@ def show_info():
             pass
 
         try:
-            engine_3 = create_engine(config.database.SRV1_DB_CONN_INFO)
+            engine_3 = create_engine(config.database.POOL_CONN_INFO)
             connection_3 = engine_3.connect()
         except:
             pass
@@ -70,7 +70,7 @@ def show_info():
             os.system("docker stop srv1")
 
         def restart_docker_host():
-            os.system("docker restart pgpool")
+            os.system("docker restart pgp")
 
         with ui.card():
             ui.label('pgpool').style('color: #6E93D6; font-size: 300%; font-weight: 300')
@@ -121,7 +121,15 @@ def show_info():
                         data_table = ui.table.from_pandas(get_n(connection_2)).classes('w-full')
                     except:
                         pass
-        
-        connection_1.close()
-        connection_2.close()
-        connection_3.close()
+        try:
+            connection_1.close()
+        except:
+            pass
+        try:
+            connection_2.close()
+        except:
+            pass
+        try:
+            connection_3.close()
+        except:
+            pass
