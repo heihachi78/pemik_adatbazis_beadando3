@@ -140,6 +140,8 @@ docker run \
     -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
+docker exec srv2 chmod 0600 /mnt/config/.pgpass
+
 while true; do
     row_count=$(docker exec srv2 psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
     if [ -n "$row_count" ]
@@ -187,6 +189,7 @@ docker run \
     -p 5434:5432 \
     -v ${PWD}/fin/mnt/config:/mnt/config \
     -v ${PWD}/fin/mnt/data:/mnt/data \
+    -v ${PWD}/sql/:/mnt/sql/ \
     -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
