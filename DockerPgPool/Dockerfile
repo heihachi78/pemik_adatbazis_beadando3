@@ -1,8 +1,6 @@
 FROM debian
 
-ENV NODES=""
-
-RUN apt-get update && apt-get upgrade
+RUN apt-get update
 COPY apt.postgresql.org.sh .
 RUN chmod +x apt.postgresql.org.sh
 RUN ./apt.postgresql.org.sh

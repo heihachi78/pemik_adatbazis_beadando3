@@ -1,6 +1,6 @@
 FROM postgres:17
 
-RUN apt-get update && apt-get upgrade
+RUN apt-get update
 RUN apt-get install -y postgresql-17-repmgr
 RUN apt install -y postgresql-common
 COPY apt.postgresql.org.sh .

@@ -193,12 +193,13 @@ docker run \
 
 docker exec -u postgres fin bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass && chmod 0600 /mnt/config/.pgpass"
 
-while true; do
+OK=0
+while [ $OK -lt 3 ]; do
     row_count=$(docker exec fin psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
     if [ -n "$row_count" ]
     then
         if [ "$row_count" -gt 0 ]; then
-          break
+          ((OK++))
         fi
     else
         echo "waiting for fin to start..."
