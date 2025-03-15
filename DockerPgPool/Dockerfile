@@ -11,9 +11,7 @@ RUN apt-get install -y postgresql-client
 RUN apt-get install -y netcat-openbsd
 RUN apt-get clean
 RUN rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+RUN mkdir /var/run/pgpool
+RUN chmod 777 /var/run/pgpool
 
-COPY waitfordb.sh /waitfordb.sh
-RUN chmod +x /waitfordb.sh
-
-ENTRYPOINT ["/waitfordb.sh"]
 CMD ["/bin/bash", "-c", "exec pgpool -n -f /mnt/config/pgpool.conf -a /mnt/config/pool_hba.conf"]

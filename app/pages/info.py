@@ -69,9 +69,6 @@ def show_info():
         def shutdown_docker_host():
             os.system("docker stop srv1")
 
-        def restart_docker_host():
-            os.system("docker restart pgp")
-
         with ui.card():
             ui.label('pgpool').style('color: #6E93D6; font-size: 300%; font-weight: 300')
             with ui.card():
@@ -80,7 +77,6 @@ def show_info():
                     data_table = ui.table.from_pandas(get_info_5()).classes('w-full')
                 except:
                     pass
-                ui.button('PGPOOL RESTART', on_click=restart_docker_host).props('color=red')
 
         with ui.row():
             with ui.card():

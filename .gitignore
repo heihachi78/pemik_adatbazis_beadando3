@@ -5,6 +5,7 @@ srv2/.ssh
 srv2/mnt/archive
 srv2/mnt/data
 srv2/mnt/data_temp
+fin/mnt/data
 pgadmin/azurecredentialcache
 pgadmin/sessions
 .venv
