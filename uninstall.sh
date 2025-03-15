@@ -30,3 +30,7 @@ docker network rm postgresnet
 docker image rm pgs
 docker image rm pgp
 #docker image rm dpage/pgadmin4
+
+rm -rf ${PWD}/tools/data/telepules_megye.csv
+rm -rf ${PWD}/tools/data/utonevek_nem.csv
+rm -rf ${PWD}/tools/data/magyar_szavak.csv

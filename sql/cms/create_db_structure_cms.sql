@@ -83,7 +83,6 @@ CREATE TABLE IF NOT EXISTS public.persons
     mother_name character varying(150) COLLATE pg_catalog."default" NOT NULL,
     death_date date,
     gender_id integer NOT NULL,
-    bank_account_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone,
     deleted_at timestamp with time zone,
@@ -131,11 +130,25 @@ CREATE TABLE IF NOT EXISTS public.test
 CREATE TABLE IF NOT EXISTS public.bank_accounts
 (
     bank_account_id serial NOT NULL,
-    account_number character(24) NOT NULL,
+    account_number character(26) NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone,
     deleted_at timestamp with time zone,
     CONSTRAINT bank_accounts_pkey PRIMARY KEY (bank_account_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.account_holders
+(
+    account_holder_id serial NOT NULL,
+    person_id integer NOT NULL,
+    bank_account_id integer NOT NULL,
+    valid_from date NOT NULL,
+    valid_to date,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone,
+    deleted_at timestamp with time zone,
+    CONSTRAINT account_holder_pkey PRIMARY KEY (account_holder_id),
+    CONSTRAINT person_bank_account_ukey UNIQUE (person_id, bank_account_id)
 );
 
 ALTER TABLE IF EXISTS public.cases
@@ -202,13 +215,6 @@ ALTER TABLE IF EXISTS public.persons
     ON DELETE NO ACTION;
 
 
-ALTER TABLE IF EXISTS public.persons
-    ADD CONSTRAINT person_bank_account_fkey FOREIGN KEY (bank_account_id)
-    REFERENCES public.bank_accounts (bank_account_id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
-
-
 ALTER TABLE IF EXISTS public.purchases
     ADD CONSTRAINT purchase_partner_fkey FOREIGN KEY (partner_id)
     REFERENCES public.partners (partner_id) MATCH SIMPLE
@@ -216,5 +222,19 @@ ALTER TABLE IF EXISTS public.purchases
     ON DELETE NO ACTION;
 CREATE INDEX IF NOT EXISTS fki_fk_purchase_partner
     ON public.purchases(partner_id);
+
+
+ALTER TABLE IF EXISTS public.account_holders
+    ADD CONSTRAINT person_fkey FOREIGN KEY (person_id)
+    REFERENCES public.persons (person_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.account_holders
+    ADD CONSTRAINT bank_account_fkey FOREIGN KEY (bank_account_id)
+    REFERENCES public.bank_accounts (bank_account_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
 
 END;
