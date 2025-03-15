@@ -13,56 +13,50 @@ def show_info():
 
         try:
             engine_1 = create_engine(config.database.SRV1_DB_CONN_INFO)
-            connection_1 = engine_1.connect()
+            srv1_conn = engine_1.connect()
         except:
             pass
 
         try:
             engine_2 = create_engine(config.database.SRV2_DB_CONN_INFO)
-            connection_2 = engine_2.connect()
+            srv2_conn = engine_2.connect()
         except:
             pass
 
         try:
             engine_3 = create_engine(config.database.POOL_CONN_INFO)
-            connection_3 = engine_3.connect()
+            pool_conn = engine_3.connect()
+        except:
+            pass
+
+        try:
+            engine_4 = create_engine(config.database.FIN_DB_CONN_INFO)
+            fin_conn = engine_4.connect()
         except:
             pass
 
         #sector data for dropdown
-        def get_info_1():
+        def get_info_pg_stat_replication(conn):
             try:
-                return pd.read_sql_query('select r.usename, r.application_name, r.sync_state from pg_stat_replication r', con=connection_1)
+                return pd.read_sql_query('select r.usename, r.application_name, r.sync_state from pg_stat_replication r', con=conn)
             except:
                 return None
 
-        def get_info_2():
+        def get_info_pg_stat_wal_receiver(conn):
             try:
-                return pd.read_sql_query('select r.status, r.sender_host, r.sender_port from pg_stat_wal_receiver r', con=connection_1)
+                return pd.read_sql_query('select r.status, r.sender_host, r.sender_port from pg_stat_wal_receiver r', con=conn)
             except:
                 return None
 
-        def get_info_3():
+        def get_info_pool_nodes(conn):
             try:
-                return pd.read_sql_query('select r.usename, r.application_name, r.sync_state from pg_stat_replication r', con=connection_2)
-            except:
-                return None
-        
-        def get_info_4():
-            try:
-                return pd.read_sql_query('select r.status, r.sender_host, r.sender_port from pg_stat_wal_receiver r', con=connection_2)
-            except:
-                return None
-
-        def get_info_5():
-            try:
-                return pd.read_sql_query('show pool_nodes', con=connection_3)
+                return pd.read_sql_query('show pool_nodes', con=conn)
             except:
                 return None
             
-        def get_n(connection):
+        def get_n_test(conn):
             try:
-                return pd.read_sql_query('select count(*) from test', con=connection)
+                return pd.read_sql_query('select count(*) from test', con=conn)
             except:
                 return None
 
@@ -74,49 +68,69 @@ def show_info():
             with ui.card():
                 ui.label('pool_nodes')
                 try:
-                    data_table = ui.table.from_pandas(get_info_5()).classes('w-full')
+                    data_table = ui.table.from_pandas(get_info_pool_nodes(pool_conn)).classes('w-full')
                 except:
                     pass
 
         with ui.row():
             with ui.card():
-                ui.label('postgres-1').style('color: #6E93D6; font-size: 300%; font-weight: 300')
+                ui.label('srv1').style('color: #6E93D6; font-size: 300%; font-weight: 300')
                 with ui.card():
                     ui.label('pg_stat_replication')
                     try:
-                        data_table = ui.table.from_pandas(get_info_1()).classes('w-full')
+                        data_table = ui.table.from_pandas(get_info_pg_stat_replication(srv1_conn)).classes('w-full')
                     except:
                         pass
                     ui.label('pg_stat_wal_receiver')
                     try:
-                        data_table = ui.table.from_pandas(get_info_2()).classes('w-full')
+                        data_table = ui.table.from_pandas(get_info_pg_stat_wal_receiver(srv1_conn)).classes('w-full')
                     except:
                         pass
-                    ui.label('Record count in test table in postgres-1')
+                    ui.label('Record count in test table')
                     try:
-                        data_table = ui.table.from_pandas(get_n(connection_1)).classes('w-full')
+                        data_table = ui.table.from_pandas(get_n_test(srv1_conn)).classes('w-full')
                     except:
                         pass
-                ui.button('POSTGERS-1 LEALLITASA', on_click=shutdown_docker_host).props('color=red')
+                ui.button('SRV1 LEALLITASA', on_click=shutdown_docker_host).props('color=red')
             
             with ui.card():
-                ui.label('postgres-2').style('color: #6E93D6; font-size: 300%; font-weight: 300')
+                ui.label('srv2').style('color: #6E93D6; font-size: 300%; font-weight: 300')
                 with ui.card():
                     ui.label('pg_stat_replication')
                     try:
-                        data_table = ui.table.from_pandas(get_info_3()).classes('w-full')
+                        data_table = ui.table.from_pandas(get_info_pg_stat_replication(srv2_conn)).classes('w-full')
                     except:
                         pass
                     ui.label('pg_stat_wal_receiver')
                     try:
-                        data_table = ui.table.from_pandas(get_info_4()).classes('w-full')
+                        data_table = ui.table.from_pandas(get_info_pg_stat_wal_receiver(srv2_conn)).classes('w-full')
                     except:
                         pass
-                    ui.label('Record count in test table in postgres-2')
+                    ui.label('Record count in test table')
                     try:
-                        data_table = ui.table.from_pandas(get_n(connection_2)).classes('w-full')
+                        data_table = ui.table.from_pandas(get_n_test(srv2_conn)).classes('w-full')
                     except:
                         pass
+
+            with ui.card():
+                ui.label('fin').style('color: #6E93D6; font-size: 300%; font-weight: 300')
+                with ui.card():
+                    ui.label('pg_stat_replication')
+                    try:
+                        data_table = ui.table.from_pandas(get_info_pg_stat_replication(fin_conn)).classes('w-full')
+                    except:
+                        pass
+                    ui.label('pg_stat_wal_receiver')
+                    try:
+                        data_table = ui.table.from_pandas(get_info_pg_stat_wal_receiver(fin_conn)).classes('w-full')
+                    except:
+                        pass
+                    ui.label('Record count in test table')
+                    try:
+                        data_table = ui.table.from_pandas(get_n_test(fin_conn)).classes('w-full')
+                    except:
+                        pass
+            
         try:
             connection_1.close()
         except:

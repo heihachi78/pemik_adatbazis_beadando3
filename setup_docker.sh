@@ -51,7 +51,7 @@ docker run \
     -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
-docker exec srv1 chmod 0600 /mnt/config/.pgpass
+docker exec -u postgres srv1 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass && chmod 0600 /mnt/config/.pgpass"
 
 while true; do
     row_count=$(docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
@@ -76,7 +76,6 @@ docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "alter u
 docker exec -u postgres srv1 ssh-keygen -q -t rsa -b 4096 -N '' -f /.ssh/id_rsa
 docker exec -u postgres srv1 bash -c "cat /.ssh/id_rsa.pub >> /.ssh/authorized_keys"
 docker exec -u postgres srv1 repmgr -f /mnt/config/repmgr.conf primary register
-docker exec -u postgres srv1 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass"
 docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;"
 
 docker run \
@@ -97,7 +96,7 @@ docker run \
     -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
-docker exec srv2 chmod 0600 /mnt/config/.pgpass
+docker exec -u postgres srv2 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass && chmod 0600 /mnt/config/.pgpass"
 
 while true; do
     row_count=$(docker exec srv2 psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
@@ -116,7 +115,6 @@ docker exec -u postgres srv2 ssh-keygen -q -t rsa -b 4096 -N '' -f /.ssh/id_rsa
 docker exec -u postgres srv2 bash -c "cat /.ssh/id_rsa.pub >> /.ssh/authorized_keys"
 docker exec -u postgres srv1 bash -c "cat /mnt/ssh/id_rsa.pub >> /.ssh/authorized_keys"
 docker exec -u postgres srv2 bash -c "cat /mnt/ssh/id_rsa.pub >> /.ssh/authorized_keys"
-docker exec -u postgres srv2 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass"
 docker exec -u postgres srv2 repmgr -f /mnt/config/repmgr.conf -h srv1 -U repmgr -d repmgr standby clone -F -c
 docker exec -u postgres srv2 /usr/lib/postgresql/17/bin/pg_ctl -D /mnt/data_temp stop
 
@@ -140,7 +138,7 @@ docker run \
     -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
-docker exec srv2 chmod 0600 /mnt/config/.pgpass
+docker exec -u postgres srv2 bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass && chmod 0600 /mnt/config/.pgpass"
 
 while true; do
     row_count=$(docker exec srv2 psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
@@ -193,7 +191,7 @@ docker run \
     -d pgs \
     -c "config_file=/mnt/config/postgresql.conf"
 
-docker exec fin chmod 0600 /mnt/config/.pgpass
+docker exec -u postgres fin bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass && chmod 0600 /mnt/config/.pgpass"
 
 while true; do
     row_count=$(docker exec fin psql -p 5432 -U postgres -d postgres -t -c "select 1" 2>/dev/null | xargs)
