@@ -124,7 +124,9 @@ CREATE TABLE IF NOT EXISTS public.sectors
 
 CREATE TABLE IF NOT EXISTS public.test
 (
-    n integer NOT NULL
+    test_id serial NOT NULL,
+    n integer NOT NULL,
+    CONSTRAINT test_pkey PRIMARY KEY (test_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.bank_accounts
@@ -147,8 +149,37 @@ CREATE TABLE IF NOT EXISTS public.account_holders
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone,
     deleted_at timestamp with time zone,
-    CONSTRAINT account_holder_pkey PRIMARY KEY (account_holder_id),
+    CONSTRAINT account_holders_pkey PRIMARY KEY (account_holder_id),
     CONSTRAINT person_bank_account_ukey UNIQUE (person_id, bank_account_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.payments
+(
+    payment_id serial NOT NULL,
+    amount integer NOT NULL,
+    payment_date date NOT NULL,
+    bank_account_id integer NOT NULL,
+    person_id integer NOT NULL,
+    case_id integer NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone,
+    deleted_at timestamp with time zone,
+    CONSTRAINT payments_pkey PRIMARY KEY (payment_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.fin_publicated_data
+(
+    account_number character(26) COLLATE pg_catalog."default",
+    bank_account_id integer,
+    first_name character varying(100) COLLATE pg_catalog."default",
+    last_name character varying(100) COLLATE pg_catalog."default",
+    birth_name character varying(150) COLLATE pg_catalog."default",
+    person_id integer,
+    partner_case_number character varying(100) COLLATE pg_catalog."default",
+    amount numeric(16, 3),
+    case_id integer,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT fin_publicated_data_pkey PRIMARY KEY (bank_account_id, person_id, case_id)
 );
 
 ALTER TABLE IF EXISTS public.cases
@@ -165,6 +196,8 @@ ALTER TABLE IF EXISTS public.cities
     REFERENCES public.regions (region_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_city_region_fkey
+    ON public.cities(region_id);
 
 
 ALTER TABLE IF EXISTS public.debtors
@@ -181,6 +214,8 @@ ALTER TABLE IF EXISTS public.debtors
     REFERENCES public.debtor_types (debtor_type_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_debtor_debtor_type_fkey
+    ON public.debtors(debtor_type_id);
 
 
 ALTER TABLE IF EXISTS public.debtors
@@ -206,6 +241,8 @@ ALTER TABLE IF EXISTS public.persons
     REFERENCES public.cities (city_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_person_birth_city_fkey
+    ON public.persons(birth_place_city_id);
 
 
 ALTER TABLE IF EXISTS public.persons
@@ -213,6 +250,8 @@ ALTER TABLE IF EXISTS public.persons
     REFERENCES public.genders (gender_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_person_gender_fkey
+    ON public.persons(gender_id);
 
 
 ALTER TABLE IF EXISTS public.purchases
@@ -229,6 +268,8 @@ ALTER TABLE IF EXISTS public.account_holders
     REFERENCES public.persons (person_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_person_fkey
+    ON public.account_holders(person_id);
 
 
 ALTER TABLE IF EXISTS public.account_holders
@@ -236,5 +277,61 @@ ALTER TABLE IF EXISTS public.account_holders
     REFERENCES public.bank_accounts (bank_account_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_bank_account_fkey
+    ON public.account_holders(bank_account_id);
+
+
+ALTER TABLE IF EXISTS public.payments
+    ADD CONSTRAINT payment_person_fkey FOREIGN KEY (person_id)
+    REFERENCES public.persons (person_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_payment_person_fkey
+    ON public.payments(person_id);
+
+
+ALTER TABLE IF EXISTS public.payments
+    ADD CONSTRAINT payment_bank_account_fkey FOREIGN KEY (bank_account_id)
+    REFERENCES public.bank_accounts (bank_account_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_payment_bank_account_fkey
+    ON public.payments(bank_account_id);
+
+
+ALTER TABLE IF EXISTS public.payments
+    ADD CONSTRAINT payment_case_fkey FOREIGN KEY (case_id)
+    REFERENCES public.cases (case_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_payment_case_fkey
+    ON public.payments(case_id);
+
+
+ALTER TABLE IF EXISTS public.fin_publicated_data
+    ADD CONSTRAINT fin_publicated_data_bank_account_fkey FOREIGN KEY (bank_account_id)
+    REFERENCES public.bank_accounts (bank_account_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_fin_publicated_data_bank_account_fkey
+    ON public.fin_publicated_data(bank_account_id);
+
+
+ALTER TABLE IF EXISTS public.fin_publicated_data
+    ADD CONSTRAINT fin_publicated_data_person_id_fkey FOREIGN KEY (person_id)
+    REFERENCES public.persons (person_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_fin_publicated_data_person_id
+    ON public.fin_publicated_data(person_id);
+
+
+ALTER TABLE IF EXISTS public.fin_publicated_data
+    ADD CONSTRAINT fin_publicated_data_case_id FOREIGN KEY (case_id)
+    REFERENCES public.cases (case_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_fin_publicated_data_case_id
+    ON public.fin_publicated_data(case_id);
 
 END;

@@ -76,7 +76,7 @@ docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "alter u
 docker exec -u postgres srv1 ssh-keygen -q -t rsa -b 4096 -N '' -f /.ssh/id_rsa
 docker exec -u postgres srv1 bash -c "cat /.ssh/id_rsa.pub >> /.ssh/authorized_keys"
 docker exec -u postgres srv1 repmgr -f /mnt/config/repmgr.conf primary register
-docker exec -u postgres srv1 psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;"
+docker exec -u postgres srv1 psql -p 5432 -U cms -d cms -t -c "create extension pgagent;"
 
 docker run \
     --net postgresnet \
@@ -173,8 +173,12 @@ docker run \
     --net postgresnet \
     --name pgp \
     -p 5433:5432 \
+    -e PGPASSFILE="/mnt/config/.pgpass" \
     -v ${PWD}/pgpool/mnt/config/:/mnt/config \
+    -v ${PWD}/sql/:/mnt/sql/ \
     -d pgp
+
+docker exec -u postgres pgp bash -c "cd ~ && cp /mnt/config/.pgpass . && chmod 0600 .pgpass && chmod 0600 /mnt/config/.pgpass"
 
 docker run \
     --net postgresnet \
@@ -210,7 +214,7 @@ done
 docker exec -u postgres fin createuser -s fin
 docker exec -u postgres fin createdb fin -O fin
 docker exec -u postgres fin psql -p 5432 -U postgres -d postgres -t -c "alter user fin with password 'pass';"
-docker exec -u postgres fin psql -p 5432 -U postgres -d postgres -t -c "create extension pgagent;"
+docker exec -u postgres fin psql -p 5432 -U fin -d fin -t -c "create extension pgagent;"
 
 SRV1_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv1)
 SRV2_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' srv2)
@@ -238,3 +242,8 @@ echo "postgres/pass"
 echo "cms/pass"
 echo "fin/pass"
 echo "beadando@pemik.hu/pass"
+
+docker exec -u postgres srv1 pgagent hostaddr=$SRV1_IP dbname=cms user=cms &&
+docker exec -u postgres fin pgagent hostaddr=$FIN_IP dbname=fin user=fin &&
+
+echo "DO NOT CLOSE THIS TERMINAL WINDOW, THIS WILL KEEP ALIVE DOCKER BACKGROUND PROCESSES"

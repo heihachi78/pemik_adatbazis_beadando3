@@ -2,10 +2,26 @@
 -- Please log an issue at https://github.com/pgadmin-org/pgadmin4/issues/new/choose if you find any bugs, including reproduction steps.
 BEGIN;
 
+CREATE TABLE IF NOT EXISTS public.fin_publicated_data
+(
+    account_number character(26) COLLATE pg_catalog."default",
+    bank_account_id integer,
+    first_name character varying(100) COLLATE pg_catalog."default",
+    last_name character varying(100) COLLATE pg_catalog."default",
+    birth_name character varying(150) COLLATE pg_catalog."default",
+    person_id integer,
+    partner_case_number character varying(100) COLLATE pg_catalog."default",
+    amount numeric(16, 3),
+    case_id integer,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT fin_publicated_data_pkey PRIMARY KEY (bank_account_id, person_id, case_id)
+);
 
 CREATE TABLE IF NOT EXISTS public.test
 (
-    n integer NOT NULL
+    test_id serial NOT NULL,
+    n integer NOT NULL,
+    CONSTRAINT test_pkey PRIMARY KEY (test_id)
 );
 
 END;

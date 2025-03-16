@@ -38,7 +38,7 @@ def show_info():
         #sector data for dropdown
         def get_info_pg_stat_replication(conn):
             try:
-                return pd.read_sql_query('select r.usename, r.application_name, r.sync_state from pg_stat_replication r', con=conn)
+                return pd.read_sql_query('select r.usename, r.application_name, r.sync_state, r.replay_lag from pg_stat_replication r', con=conn)
             except:
                 return None
 
@@ -92,7 +92,7 @@ def show_info():
                     except:
                         pass
                 ui.button('SRV1 LEALLITASA', on_click=shutdown_docker_host).props('color=red')
-            
+
             with ui.card():
                 ui.label('srv2').style('color: #6E93D6; font-size: 300%; font-weight: 300')
                 with ui.card():
@@ -130,16 +130,20 @@ def show_info():
                         data_table = ui.table.from_pandas(get_n_test(fin_conn)).classes('w-full')
                     except:
                         pass
-            
+
         try:
-            connection_1.close()
+            srv1_conn.close()
         except:
             pass
         try:
-            connection_2.close()
+            srv2_conn.close()
         except:
             pass
         try:
-            connection_3.close()
+            pool_conn.close()
+        except:
+            pass
+        try:
+            fin_conn.close()
         except:
             pass

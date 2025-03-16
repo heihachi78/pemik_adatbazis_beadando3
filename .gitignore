@@ -10,3 +10,4 @@ pgadmin/azurecredentialcache
 pgadmin/sessions
 .venv
 **/__pycache__
+tools/data/*.csv

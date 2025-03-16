@@ -3,7 +3,6 @@
 ./setup_python.sh
 ./setup_docker.sh
 ./setup_db.sh
+./setup_data.sh
 
-unzip ${PWD}/tools/data/magyar_szavak.zip -d ${PWD}/tools/data/
-unzip ${PWD}/tools/data/telepules_megye.zip -d ${PWD}/tools/data/
-unzip ${PWD}/tools/data/utonevek_nem.zip -d ${PWD}/tools/data/
+echo "DO NOT CLOSE THIS TERMINAL WINDOW, THIS WILL KEEP ALIVE DOCKER BACKGROUND PROCESSES"

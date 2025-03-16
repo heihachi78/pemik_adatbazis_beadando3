@@ -25,7 +25,8 @@ def show_report():
                         SELECT 
                             p.partner_id,
                             SUM(c.calculated_purchase_value) AS total_calculated_value,
-                            SUM(c.amount) AS total_calculated_amount,
+                            SUM(c.amount) AS total_amount,
+                            AVG(c.amount) AS avg_amount,
                             COUNT(DISTINCT c.case_id) AS total_cases
                         FROM purchases p
                         JOIN cases c ON c.purchase_id = p.purchase_id
@@ -44,8 +45,9 @@ def show_report():
                         r."name" AS partner_neve,
                         ps.total_purchase_value AS vasarlasi_ertek,
                         cs.total_calculated_value AS vasarlas_kalkulalt_erteke,
-                        cs.total_calculated_amount AS vasarolt_ugyek_osszerteke,
-                        cs.total_calculated_amount - ps.total_purchase_value AS kulonbozet,
+                        cs.total_amount AS vasarolt_ugyek_osszerteke,
+                        cs.avg_amount AS vasarolt_ugyek_atlagos_erteke,
+                        cs.total_amount - ps.total_purchase_value AS kulonbozet,
                         ps.purchase_count AS vasarlasok_szama,
                         cs.total_cases AS vasarolt_ugyek_szama,
                         ds.total_debtors AS ugyfelek_szama,

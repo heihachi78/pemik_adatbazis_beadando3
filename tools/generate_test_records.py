@@ -17,15 +17,15 @@ test = Table('test', metadata, autoload_with=engine)
 stmt = insert(test).values(n=1)
 stmt2 = select(test)
 
-x=0
-while True:
-    #time.sleep(round(random.uniform(0.1,1), 2))
-    try:
-        with engine.connect() as conn:
+with engine.connect() as conn:
+    x=0
+    while True:
+        #time.sleep(round(random.uniform(0.1,1), 2))
+        try:
             result = conn.execute(stmt)
             conn.commit()
             conn.execute(stmt2)
             x+=1
             print(f"Record {x} inserted successfully")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
