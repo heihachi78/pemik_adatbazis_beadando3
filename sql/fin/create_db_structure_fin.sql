@@ -4,17 +4,35 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.fin_publicated_data
 (
-    account_number character(26) COLLATE pg_catalog."default",
-    bank_account_id integer,
-    first_name character varying(100) COLLATE pg_catalog."default",
-    last_name character varying(100) COLLATE pg_catalog."default",
+    account_number character(26) COLLATE pg_catalog."default" NOT NULL,
+    account_valid_from date NOT NULL,
+    account_valid_to date,
+    bank_account_id integer NOT NULL,
+    first_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    last_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
     birth_name character varying(150) COLLATE pg_catalog."default",
-    person_id integer,
-    partner_case_number character varying(100) COLLATE pg_catalog."default",
-    amount numeric(16, 3),
-    case_id integer,
+    person_id integer NOT NULL,
+    partner_case_number character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    amount numeric(16, 3) NOT NULL,
+    balance numeric(16, 3) NOT NULL,
+    purchased_at date NOT NULL,
+    case_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT fin_publicated_data_pkey PRIMARY KEY (bank_account_id, person_id, case_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.payments
+(
+    payment_id serial NOT NULL,
+    amount integer NOT NULL,
+    payment_date date NOT NULL,
+    bank_account_id integer NOT NULL,
+    person_id integer NOT NULL,
+    case_id integer NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone,
+    deleted_at timestamp with time zone,
+    CONSTRAINT payments_pkey PRIMARY KEY (payment_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.test

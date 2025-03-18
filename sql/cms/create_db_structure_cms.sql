@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS public.cases
     partner_case_number character varying(100) COLLATE pg_catalog."default",
     due_date date NOT NULL,
     amount numeric(16, 3) NOT NULL,
+    interest_rate numeric(6, 3) NOT NULL,
     calculated_purchase_value numeric(16, 3),
+    closed_at timestamp with time zone,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone,
     deleted_at timestamp with time zone,
@@ -169,17 +171,50 @@ CREATE TABLE IF NOT EXISTS public.payments
 
 CREATE TABLE IF NOT EXISTS public.fin_publicated_data
 (
-    account_number character(26) COLLATE pg_catalog."default",
-    bank_account_id integer,
-    first_name character varying(100) COLLATE pg_catalog."default",
-    last_name character varying(100) COLLATE pg_catalog."default",
+    account_number character(26) COLLATE pg_catalog."default" NOT NULL,
+    account_valid_from date NOT NULL,
+    account_valid_to date,
+    bank_account_id integer NOT NULL,
+    first_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    last_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
     birth_name character varying(150) COLLATE pg_catalog."default",
-    person_id integer,
-    partner_case_number character varying(100) COLLATE pg_catalog."default",
-    amount numeric(16, 3),
-    case_id integer,
+    person_id integer NOT NULL,
+    partner_case_number character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    amount numeric(16, 3) NOT NULL,
+    balance numeric(16, 3) NOT NULL,
+    purchased_at date NOT NULL,
+    case_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT fin_publicated_data_pkey PRIMARY KEY (bank_account_id, person_id, case_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.debts
+(
+    debt_id serial NOT NULL,
+    case_id integer NOT NULL,
+    calculated_from date NOT NULL,
+    calculated_to date NOT NULL,
+    debt_amount numeric(16, 3) NOT NULL,
+    interest_rate numeric(6, 3) NOT NULL,
+    interest_value numeric(16, 3) NOT NULL,
+    unsecured_interest_value numeric(16, 3) NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone,
+    deleted_at timestamp with time zone,
+    CONSTRAINT debts_pkey PRIMARY KEY (debt_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.debt_coverages
+(
+    debt_coverage_id serial NOT NULL,
+    debt_id integer NOT NULL,
+    payment_id integer NOT NULL,
+    debt_amount_covered numeric(16, 3) NOT NULL,
+    interest_amount_covered numeric(16, 3) NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone,
+    deleted_at timestamp with time zone,
+    CONSTRAINT debt_coverages_pkey PRIMARY KEY (debt_coverage_id)
 );
 
 ALTER TABLE IF EXISTS public.cases
@@ -333,5 +368,32 @@ ALTER TABLE IF EXISTS public.fin_publicated_data
     ON DELETE NO ACTION;
 CREATE INDEX IF NOT EXISTS fki_fin_publicated_data_case_id
     ON public.fin_publicated_data(case_id);
+
+
+ALTER TABLE IF EXISTS public.debts
+    ADD CONSTRAINT debt_case_fkey FOREIGN KEY (case_id)
+    REFERENCES public.cases (case_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_debt_case_fkey
+    ON public.debts(case_id);
+
+
+ALTER TABLE IF EXISTS public.debt_coverages
+    ADD CONSTRAINT coverage_debt_fkey FOREIGN KEY (debt_id)
+    REFERENCES public.debts (debt_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_debts_fkey
+    ON public.debt_coverages(debt_id);
+
+
+ALTER TABLE IF EXISTS public.debt_coverages
+    ADD CONSTRAINT coverage_payment_fkey FOREIGN KEY (payment_id)
+    REFERENCES public.payments (payment_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+CREATE INDEX IF NOT EXISTS fki_payments_fkey
+    ON public.debt_coverages(payment_id);
 
 END;

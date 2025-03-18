@@ -21,6 +21,9 @@ AMOUNT_OUTLIER_RATE = 10
 MARGIN = 1.05
 TYPE2_DEBTOR_RATE = 100
 TYPE3_DEBTOR_RATE = 10
+MIN_INTEREST = 5
+MAX_INTEREST = 25
+CLOSED_CASE_RATE = 0.6
 
 DATABASE_USER = 'cms'
 DATABASE_PASSWORD = 'pass'
@@ -179,13 +182,14 @@ def generate_random_case_number(partner_id: int) -> str:
         return random.choice(string.ascii_uppercase) + "/" + str(np.random.randint(10000, 999999)) + "/" + random.choice(string.ascii_uppercase)
     return random.choice(string.ascii_uppercase) + "-" + str(np.random.randint(1, 999999)) + "/" + random.choice(string.ascii_uppercase) + str(np.random.randint(100000, 999999))
 
-def insert_case(purchase_id, partner_case_number, due_date, amount, created_at):
-    case_id = connection.execute(text("INSERT INTO cases(purchase_id, partner_case_number, due_date, amount, created_at) VALUES (:purchase_id, :partner_case_number, :due_date, :amount, :created_at) returning case_id"), 
+def insert_case(purchase_id, partner_case_number, due_date, amount, created_at, interest_rate):
+    case_id = connection.execute(text("INSERT INTO cases(purchase_id, partner_case_number, due_date, amount, created_at, interest_rate) VALUES (:purchase_id, :partner_case_number, :due_date, :amount, :created_at, :interest_rate) returning case_id"),
                         {"purchase_id": purchase_id, 
                             "partner_case_number": partner_case_number, 
                             "due_date": due_date, 
                             "amount": amount, 
-                            "created_at": created_at}).fetchone()[0]
+                            "created_at": created_at,
+                            "interest_rate": interest_rate}).fetchone()[0]
     return case_id
 
 def generate_random_case(partner_id, purchased_at, created_at):
@@ -194,9 +198,10 @@ def generate_random_case(partner_id, purchased_at, created_at):
     to_date = purchased_at - timedelta(days=np.random.randint(31, 62))
     due_date = generate_random_date(from_date=from_date, to_date=to_date)
     amount = np.random.randint(MIN_AMOUNT, MAX_AMOUNT)
+    interest_rate = np.random.randint(MIN_INTEREST, MAX_INTEREST) / 100.
     if np.random.randint(1, AMOUNT_OUTLIER_RATE) == 7:
         amount += MAX_AMOUNT
-    case_id = insert_case(purchase_id, partner_case_number, due_date, amount, created_at)
+    case_id = insert_case(purchase_id, partner_case_number, due_date, amount, created_at, interest_rate)
     return case_id, amount
 
 def insert_debtor(case_id, person_id, created_at, type):
@@ -225,6 +230,14 @@ def handle_death(created_at, person_id):
     death_date = generate_random_date(created_at, date(2024, 12, 31))
     connection.execute(text("UPDATE persons SET death_date = :death_date WHERE person_id = :person_id"), {"death_date": death_date, "person_id": person_id})
     return death_date
+
+def generate_payments():
+    connection.execute(text("call generate_payments();"))
+
+def get_case_numbers():
+    all_cases = connection.execute(text("select count(*) from cases")).fetchone()[0]
+    closed_cases = connection.execute(text("select count(*) from cases where closed_at is not null")).fetchone()[0]
+    return all_cases, closed_cases
 
 try:
     initialize()
@@ -263,6 +276,14 @@ try:
         except Exception as e:
             connection.rollback()
     pb.close()
+
+    all_cases, closed_cases = get_case_numbers()
+    while closed_cases / all_cases < CLOSED_CASE_RATE:
+        print('generating payment data...')
+        generate_payments()
+        connection.commit()
+        all_cases, closed_cases = get_case_numbers()
+
     print('Data generated successfully!')
 except Exception as e:
     print(type(e))
