@@ -4,6 +4,8 @@ DECLARE
 	calc_from DATE;
 	calc_to DATE;
 	interest NUMERIC;
+	sum_interest_amount NUMERIC;
+	sum_covered_interest_amount NUMERIC;
 BEGIN
 	FOR case_record IN
 		select 
@@ -57,11 +59,14 @@ BEGIN
 			    now());
 		end if;
 
+		select into sum_interest_amount sum(d.interest_amount) from debts d where d.case_id = case_record.case_id;
+		select into sum_covered_interest_amount sum(interest_amount_covered) from payed_debts where debt_id in (select d.debt_id from debts d where d.case_id = case_record.case_id);
+
 		UPDATE 
 			cases c
 		SET 
 			updated_at = now(),
-			current_interest_amount = (select sum(d.interest_amount) from debts d where d.case_id = c.case_id),
+			current_interest_amount = coalesce(sum_interest_amount, 0.0) - coalesce(sum_covered_interest_amount, 0.0),
 			current_due_date = calc_to + 1
 		WHERE 
 			c.case_id = case_record.case_id;
