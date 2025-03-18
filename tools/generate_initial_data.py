@@ -239,6 +239,9 @@ def get_case_numbers():
     closed_cases = connection.execute(text("select count(*) from cases where closed_at is not null")).fetchone()[0]
     return all_cases, closed_cases
 
+def calculate_interet():
+    connection.execute(text("call calculate_interest();"))
+
 try:
     initialize()
     rc = load_csv('data/telepules_megye.csv', sep=';')
@@ -283,6 +286,10 @@ try:
         generate_payments()
         connection.commit()
         all_cases, closed_cases = get_case_numbers()
+
+    print('calculating interest...')
+    calculate_interet()
+    connection.commit()
 
     print('Data generated successfully!')
 except Exception as e:
