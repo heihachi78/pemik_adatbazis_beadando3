@@ -9,8 +9,12 @@ CREATE TABLE IF NOT EXISTS public.cases
     purchase_id integer NOT NULL,
     partner_case_number character varying(100) COLLATE pg_catalog."default",
     due_date date NOT NULL,
+    current_due_date date NOT NULL,
     amount numeric(16, 3) NOT NULL,
+    current_amount numeric(16, 3) NOT NULL,
     interest_rate numeric(6, 3) NOT NULL,
+    current_interest_rate numeric(6, 3) NOT NULL,
+    current_interest_amount numeric(16, 3) NOT NULL,
     calculated_purchase_value numeric(16, 3),
     closed_at timestamp with time zone,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
@@ -196,17 +200,17 @@ CREATE TABLE IF NOT EXISTS public.debts
     calculated_to date NOT NULL,
     debt_amount numeric(16, 3) NOT NULL,
     interest_rate numeric(6, 3) NOT NULL,
-    interest_value numeric(16, 3) NOT NULL,
-    unsecured_interest_value numeric(16, 3) NOT NULL,
+    interest_amount numeric(16, 3) NOT NULL,
+    open_debt boolean NOT NULL DEFAULT false,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone,
     deleted_at timestamp with time zone,
     CONSTRAINT debts_pkey PRIMARY KEY (debt_id)
 );
 
-CREATE TABLE IF NOT EXISTS public.debt_coverages
+CREATE TABLE IF NOT EXISTS public.payed_debts
 (
-    debt_coverage_id serial NOT NULL,
+    payed_debt_id serial NOT NULL,
     debt_id integer NOT NULL,
     payment_id integer NOT NULL,
     debt_amount_covered numeric(16, 3) NOT NULL,
@@ -214,7 +218,7 @@ CREATE TABLE IF NOT EXISTS public.debt_coverages
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone,
     deleted_at timestamp with time zone,
-    CONSTRAINT debt_coverages_pkey PRIMARY KEY (debt_coverage_id)
+    CONSTRAINT payed_debts_pkey PRIMARY KEY (payed_debt_id)
 );
 
 ALTER TABLE IF EXISTS public.cases
@@ -379,21 +383,21 @@ CREATE INDEX IF NOT EXISTS fki_debt_case_fkey
     ON public.debts(case_id);
 
 
-ALTER TABLE IF EXISTS public.debt_coverages
+ALTER TABLE IF EXISTS public.payed_debts
     ADD CONSTRAINT coverage_debt_fkey FOREIGN KEY (debt_id)
     REFERENCES public.debts (debt_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
 CREATE INDEX IF NOT EXISTS fki_debts_fkey
-    ON public.debt_coverages(debt_id);
+    ON public.payed_debts(debt_id);
 
 
-ALTER TABLE IF EXISTS public.debt_coverages
+ALTER TABLE IF EXISTS public.payed_debts
     ADD CONSTRAINT coverage_payment_fkey FOREIGN KEY (payment_id)
     REFERENCES public.payments (payment_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
 CREATE INDEX IF NOT EXISTS fki_payments_fkey
-    ON public.debt_coverages(payment_id);
+    ON public.payed_debts(payment_id);
 
 END;

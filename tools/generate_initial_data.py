@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 print('Generating data...')
 
-PURCHASE_COUNT = 240
+PURCHASE_COUNT = 25
 MIN_BATCH_VALUE = 250_000
 MAX_BATCH_VALUE = 25_000_000
 MIN_AMOUNT = 25_000
@@ -183,13 +183,14 @@ def generate_random_case_number(partner_id: int) -> str:
     return random.choice(string.ascii_uppercase) + "-" + str(np.random.randint(1, 999999)) + "/" + random.choice(string.ascii_uppercase) + str(np.random.randint(100000, 999999))
 
 def insert_case(purchase_id, partner_case_number, due_date, amount, created_at, interest_rate):
-    case_id = connection.execute(text("INSERT INTO cases(purchase_id, partner_case_number, due_date, amount, created_at, interest_rate) VALUES (:purchase_id, :partner_case_number, :due_date, :amount, :created_at, :interest_rate) returning case_id"),
+    case_id = connection.execute(text("INSERT INTO cases(purchase_id, partner_case_number, due_date, amount, current_amount, created_at, interest_rate, current_interest_amount, current_interest_rate, current_due_date) VALUES \
+                                      (:purchase_id, :partner_case_number, :due_date, :amount, :amount, :created_at, :interest_rate, 0, :interest_rate, :due_date) returning case_id"),
                         {"purchase_id": purchase_id, 
-                            "partner_case_number": partner_case_number, 
-                            "due_date": due_date, 
-                            "amount": amount, 
-                            "created_at": created_at,
-                            "interest_rate": interest_rate}).fetchone()[0]
+                         "partner_case_number": partner_case_number, 
+                         "due_date": due_date, 
+                         "amount": amount, 
+                         "created_at": created_at,
+                         "interest_rate": interest_rate}).fetchone()[0]
     return case_id
 
 def generate_random_case(partner_id, purchased_at, created_at):
@@ -280,12 +281,12 @@ try:
             connection.rollback()
     pb.close()
 
-    all_cases, closed_cases = get_case_numbers()
-    while closed_cases / all_cases < CLOSED_CASE_RATE:
-        print('generating payment data...')
-        generate_payments()
-        connection.commit()
-        all_cases, closed_cases = get_case_numbers()
+    #all_cases, closed_cases = get_case_numbers()
+    #while closed_cases / all_cases < CLOSED_CASE_RATE:
+    #    print('generating payment data...')
+    #    generate_payments()
+    #    connection.commit()
+    #    all_cases, closed_cases = get_case_numbers()
 
     print('calculating interest...')
     calculate_interet()
