@@ -73,37 +73,57 @@ coverage_summary as (
 		p.purchase_id = c.purchase_id
 	group by
 		p.partner_id
+),
+interest_summary as (
+	select
+    	p.partner_id,
+    	sum(d.interest_amount) as sum_interest
+	from
+    	debts d,
+		cases c,
+		purchases p
+	where 
+		c.case_id = d.case_id and
+		p.purchase_id = c.purchase_id
+	group by
+		p.partner_id
 )
 SELECT 
 	r."name" AS partner_neve,
-	ps.total_purchase_value AS vasarlasi_ertek,
-	cs.total_calculated_value AS vasarlas_kalkulalt_erteke,
-	cs.total_amount AS vasarolt_ugyek_osszerteke,
-	cs.avg_amount AS vasarolt_ugyek_atlagos_erteke,
-	cs.total_amount - ps.total_purchase_value AS kulonbozet,
+    
+	to_char(ps.total_purchase_value, '999 999 999 999D999') AS vasarlasi_ertek,
+	to_char(cs.total_amount, '999 999 999 999D999') AS vasarolt_ugyek_osszerteke,
 	ps.purchase_count AS vasarlasok_szama,
 	cs.total_cases AS vasarolt_ugyek_szama,
 	ds.total_debtors AS ugyfelek_szama,
 	ps.first_purchase AS elso_vasarlas,
 	ps.last_purchase AS utolso_vasarlas,
-    cs.total_current_amount AS aktualis_toke_tartozas_osszege,
-    cs.total_current_interest_amount as aktualis_kamat_tartozas_osszege,
-	ts.sum_payment AS osszes_befizetes,
-	ct.debt_amount_covered AS befizetett_tartozas,
-	ct.interest_amount_covered AS befizetett_kamat, 
-	ct.debt_amount_covered + ct.interest_amount_covered AS fedezett_osszesen
+
+    to_char(cs.total_amount, '999 999 999 999D999') AS teljes_toke_tartozas,
+    to_char(ct.debt_amount_covered, '999 999 999 999D999') as leosztott_toke_tartozas,
+    to_char(cs.total_amount - ct.debt_amount_covered, '999 999 999 999D999') as befizetetlen_toke_tartozas,
+    to_char(cs.total_current_amount, '999 999 999 999D999') as nyilvantartott_befizetetlen_toke_tartozas,
+    
+    to_char(it.sum_interest, '999 999 999 999D999') as nyilvantartott_kamat,
+    to_char(ct.interest_amount_covered, '999 999 999 999D999') AS leosztott_kamat,
+    to_char(it.sum_interest - ct.interest_amount_covered, '999 999 999 999D999') as befizetetlen_kamat,
+    to_char(cs.total_current_interest_amount, '999 999 999 999D999') as nyilvantartott_befizetetlen_kamat_tartozas,
+    
+	to_char(ts.sum_payment, '999 999 999 999D999') AS osszes_befizetes,
+	to_char(ct.debt_amount_covered + ct.interest_amount_covered, '999 999 999 999D999') AS leosztas_osszesen
 FROM partners r
-JOIN purchase_summary ps ON r.partner_id = ps.partner_id
-JOIN case_summary cs ON r.partner_id = cs.partner_id
-JOIN debtor_summary ds ON r.partner_id = ds.partner_id
-JOIN payments_summary ts ON ts.partner_id = r.partner_id
-JOIN coverage_summary ct ON ct.partner_id = r.partner_id
+LEFT JOIN purchase_summary ps ON r.partner_id = ps.partner_id
+LEFT JOIN case_summary cs ON r.partner_id = cs.partner_id
+LEFT JOIN debtor_summary ds ON r.partner_id = ds.partner_id
+LEFT JOIN payments_summary ts ON ts.partner_id = r.partner_id
+LEFT JOIN coverage_summary ct ON ct.partner_id = r.partner_id
+LEFT JOIN interest_summary it ON it.partner_id = r.partner_id
 ORDER BY r."name" ASC
             '''
         with ui.card():
             ui.label('Osszegzett adatok').style('color: #6E93D6; font-size: 300%; font-weight: 300')
             try:
-                engine = create_engine(config.database.SRV1_DB_CONN_INFO)
+                engine = create_engine(config.database.POOL_CONN_INFO)
                 connection = engine.connect()
                 data = pd.read_sql_query(text(sql), con=connection)
                 data_table = ui.table.from_pandas(data).classes('w-full')

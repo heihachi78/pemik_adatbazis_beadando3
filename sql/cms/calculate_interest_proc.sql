@@ -19,7 +19,7 @@ BEGIN
 			cases c left join 
 			debts d on (c.case_id = d.case_id and d.open_debt = true)
 		where 
-			c.closed_at is null		
+			c.closed_at is null
 	LOOP
 		calc_to := CURRENT_DATE;
 		calc_from := case_record.current_due_date;

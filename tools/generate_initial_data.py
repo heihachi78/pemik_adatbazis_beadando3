@@ -12,16 +12,16 @@ from tqdm import tqdm
 
 print('Generating data...')
 
-PURCHASE_COUNT = 25
+PURCHASE_COUNT = 500
 MIN_BATCH_VALUE = 250_000
 MAX_BATCH_VALUE = 25_000_000
 MIN_AMOUNT = 25_000
 MAX_AMOUNT = 250_000
 AMOUNT_OUTLIER_RATE = 10
-MARGIN = 1.05
+MARGIN = 1.02
 TYPE2_DEBTOR_RATE = 100
 TYPE3_DEBTOR_RATE = 10
-MIN_INTEREST = 5
+MIN_INTEREST = 3
 MAX_INTEREST = 25
 CLOSED_CASE_RATE = 0.6
 
@@ -240,7 +240,7 @@ def get_case_numbers():
     closed_cases = connection.execute(text("select count(*) from cases where closed_at is not null")).fetchone()[0]
     return all_cases, closed_cases
 
-def calculate_interet():
+def calculate_interest():
     connection.execute(text("call calculate_interest();"))
 
 try:
@@ -281,18 +281,18 @@ try:
             connection.rollback()
     pb.close()
 
-    #all_cases, closed_cases = get_case_numbers()
-    #while closed_cases / all_cases < CLOSED_CASE_RATE:
-    #    print('generating payment data...')
-    #    generate_payments()
-    #    connection.commit()
-    #    all_cases, closed_cases = get_case_numbers()
-
     print('calculating interest...')
-    calculate_interet()
-    connection.commit()
-
+    calculate_interest()
+    all_cases, closed_cases = get_case_numbers()
+    while closed_cases / all_cases < CLOSED_CASE_RATE:
+        print('generating payment data...')
+        generate_payments()
+        connection.commit()
+        calculate_interest()
+        connection.commit()
+        all_cases, closed_cases = get_case_numbers()
     print('Data generated successfully!')
+
 except Exception as e:
     print(type(e))
     print(e.args)
