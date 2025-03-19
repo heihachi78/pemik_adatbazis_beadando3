@@ -98,7 +98,7 @@ BEGIN
 			c_debt_amount_covered,
 			c_interest_amount_covered,
 			GREATEST(payment_record.amount - remaining_interest_amount - payment_record.current_amount, 0),
-			calc_to);
+			now());
 
 		UPDATE 
 			cases c
