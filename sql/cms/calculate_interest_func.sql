@@ -1,4 +1,4 @@
--CREATE OR REPLACE FUNCTION public.calculate_interest(
+CREATE OR REPLACE FUNCTION public.calculate_interest(
 	debt numeric,
 	interest_rate numeric,
 	date_from date,

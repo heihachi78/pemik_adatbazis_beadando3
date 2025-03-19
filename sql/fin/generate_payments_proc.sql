@@ -39,7 +39,7 @@ BEGIN
 		r_payment_date := cms_record.last_payment_date + 1 + (RANDOM() * days_range)::INTEGER;
 		days_range := r_payment_date - cms_record.last_payment_date;
 		if days_range < 1 then continue; end if;
-		r_payment_amount := (cms_record.current_amount + cms_record.current_interest_amount) * RANDOM();
+		r_payment_amount := (cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)))) * RANDOM();
 		if cms_record.current_amount < 5000 then
 			r_payment_amount := cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)));
 		end if;

@@ -109,7 +109,7 @@ BEGIN
 		WHERE 
 			c.case_id = payment_record.case_id;
 
-		CALL calculate_interest(payment_record.case_id);
+		CALL calculate_interest_for_case(payment_record.case_id);
 
 END LOOP;
 END;

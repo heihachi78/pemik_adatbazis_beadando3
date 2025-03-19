@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE public.calculate_interest(
+CREATE OR REPLACE PROCEDURE public.calculate_interest_for_case(
 	IN p_case_id integer)
 LANGUAGE 'plpgsql'
 AS $BODY$
@@ -79,5 +79,5 @@ BEGIN
 	END LOOP;
 END;
 $BODY$;
-ALTER PROCEDURE public.calculate_interest(integer)
+ALTER PROCEDURE public.calculate_interest_for_case(integer)
     OWNER TO cms;
