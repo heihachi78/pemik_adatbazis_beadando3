@@ -1,4 +1,11 @@
-CREATE OR REPLACE PROCEDURE public.calculate_interest() AS $$
+-- PROCEDURE: public.calculate_interest()
+
+-- DROP PROCEDURE IF EXISTS public.calculate_interest();
+
+CREATE OR REPLACE PROCEDURE public.calculate_interest(
+	)
+LANGUAGE 'plpgsql'
+AS $BODY$
 DECLARE
 	case_record RECORD;
 	calc_from DATE;
@@ -73,4 +80,6 @@ BEGIN
 
 	END LOOP;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$;
+ALTER PROCEDURE public.calculate_interest()
+    OWNER TO cms;

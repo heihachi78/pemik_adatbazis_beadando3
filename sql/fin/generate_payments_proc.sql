@@ -1,60 +1,63 @@
-CREATE OR REPLACE PROCEDURE public.generate_payments() AS $$
+CREATE OR REPLACE PROCEDURE public.generate_payments(
+	)
+LANGUAGE 'plpgsql'
+AS $BODY$
 DECLARE
-    payment_record RECORD;
-    total_amount NUMERIC;
-    remaining_amount NUMERIC;
-    payment_amount INTEGER;
-    payment_count INTEGER := 0;
-	min_payment INTEGER := 5000;
-    random_date DATE;
-    start_date DATE;
-    end_date DATE := CURRENT_DATE;
-    days_range INTEGER;
+    cms_record RECORD;
+	days_range INTEGER;
+	r_payment_date DATE;
+	r_payment_amount NUMERIC;
 BEGIN
-    FOR payment_record IN 
-        SELECT bank_account_id, person_id, case_id, amount, account_valid_from, account_valid_to FROM public.fin_publicated_data
+    FOR cms_record IN 
+        SELECT 
+			f.partner_case_number, 
+			f.account_number, 
+			f.first_name, 
+			f.last_name, 
+			f.birth_name, 
+			f.closed_at, 
+			f.current_amount, 
+			f.current_interest_amount, 
+			f.overpayment, 
+			f.last_payment_date, 
+			f.current_due_date, 
+			f.valid_to, 
+			f.case_id, 
+			f.bank_account_id, 
+			f.person_id, 
+			f.refreshed_at 
+		FROM 
+			public.fin_publicated_data f
+		WHERE
+			not exists (select 1 from payments p where p.payment_date + 1 > f.last_payment_date and p.case_id = f.case_id)
     LOOP
-		random_date := payment_record.account_valid_from;
-        total_amount := payment_record.amount;
-        remaining_amount := total_amount;
-        
-        WHILE remaining_amount > 0 LOOP
-			start_date := random_date;
-        	days_range := end_date - start_date;
-            IF remaining_amount > min_payment THEN
-                payment_amount := FLOOR(RANDOM() * remaining_amount);
-            ELSE
-                payment_amount := remaining_amount;
-            END IF;
-            
-            IF payment_amount > remaining_amount OR payment_amount < min_payment THEN
-                payment_amount := remaining_amount;
-            END IF;
-            
-            random_date := start_date + (RANDOM() * days_range)::INTEGER;
-            
-            INSERT INTO public.payments(
-                amount, 
-                payment_date, 
-                bank_account_id, 
-                person_id, 
-                case_id)
-            VALUES (
-                payment_amount, 
-                random_date, 
-                payment_record.bank_account_id, 
-                payment_record.person_id, 
-                payment_record.case_id
-            );
-            
-            remaining_amount := remaining_amount - payment_amount;
-            
-            IF remaining_amount < 1 THEN
-                EXIT;
-            END IF;
-            
-        END LOOP;
+		if RANDOM() < 0.9 then continue; end if;
+		days_range := (cms_record.current_due_date - cms_record.last_payment_date) - 2;
+		if days_range < 3 then continue; end if;
+		r_payment_date := cms_record.last_payment_date + 1 + (RANDOM() * (days_range - 1))::INTEGER;
+		days_range := r_payment_date - cms_record.last_payment_date;
+		if days_range < 1 then continue; end if;
+		r_payment_amount := cms_record.current_amount + (cms_record.current_interest_amount * RANDOM());
+		INSERT INTO public.payments(
+			amount, 
+			payment_date, 
+			bank_account_id, 
+			person_id, 
+			case_id, 
+			created_at, 
+			updated_at, 
+			deleted_at)
+		VALUES (
+			r_payment_amount, 
+			r_payment_date, 
+			cms_record.bank_account_id, 
+			cms_record.person_id, 
+			cms_record.case_id, 
+			now(), 
+			null, 
+			null
+	);
     END LOOP;
     
 END;
-$$ LANGUAGE plpgsql;
+$BODY$;

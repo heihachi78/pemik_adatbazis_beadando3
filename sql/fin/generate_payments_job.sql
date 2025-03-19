@@ -3,15 +3,13 @@ DECLARE
     jid integer;
     scid integer;
 BEGIN
--- Creating a new job
+
 INSERT INTO pgagent.pga_job(
     jobjclid, jobname, jobdesc, jobhostagent, jobenabled
 ) VALUES (
     5::integer, 'generate_payments'::text, ''::text, ''::text, true
 ) RETURNING jobid INTO jid;
 
--- Steps
--- Inserting a step (jobid: NULL)
 INSERT INTO pgagent.pga_jobstep (
     jstjobid, jstname, jstenabled, jstkind,
     jstconnstr, jstdbname, jstonerror,
@@ -22,8 +20,6 @@ INSERT INTO pgagent.pga_jobstep (
     'call public.generate_payments();'::text, ''::text
 ) ;
 
--- Schedules
--- Inserting a schedule
 INSERT INTO pgagent.pga_schedule(
     jscjobid, jscname, jscdesc, jscenabled,
     jscstart,     jscminutes, jschours, jscweekdays, jscmonthdays, jscmonths

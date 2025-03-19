@@ -1,4 +1,11 @@
-CREATE OR REPLACE PROCEDURE public.generate_payments() AS $$
+-- PROCEDURE: public.generate_payments()
+
+-- DROP PROCEDURE IF EXISTS public.generate_payments();
+
+CREATE OR REPLACE PROCEDURE public.generate_payments(
+	)
+LANGUAGE 'plpgsql'
+AS $BODY$
 DECLARE
 	case_record RECORD;
 	calc_from DATE;
@@ -128,4 +135,6 @@ BEGIN
 
 	END LOOP;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$;
+ALTER PROCEDURE public.generate_payments()
+    OWNER TO cms;

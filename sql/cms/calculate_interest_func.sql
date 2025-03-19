@@ -1,10 +1,17 @@
+-- FUNCTION: public.calculate_interest(numeric, numeric, date, date)
+
+-- DROP FUNCTION IF EXISTS public.calculate_interest(numeric, numeric, date, date);
+
 CREATE OR REPLACE FUNCTION public.calculate_interest(
-    debt NUMERIC,
-    interest_rate NUMERIC,
-    date_from DATE,
-    date_to DATE
-)
-RETURNS NUMERIC AS $$
+	debt numeric,
+	interest_rate numeric,
+	date_from date,
+	date_to date)
+    RETURNS numeric
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
 DECLARE
     days_difference INTEGER;
     annual_days INTEGER := 365;
@@ -28,4 +35,7 @@ BEGIN
     
     RETURN ROUND(interest_amount, 3);
 END;
-$$ LANGUAGE plpgsql;
+$BODY$;
+
+ALTER FUNCTION public.calculate_interest(numeric, numeric, date, date)
+    OWNER TO cms;

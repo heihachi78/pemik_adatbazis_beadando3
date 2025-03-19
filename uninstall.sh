@@ -12,7 +12,7 @@ rm -rf ${PWD}/srv2/mnt/archive
 rm -rf ${PWD}/fin/mnt/data
 
 rm -rf ${PWD}/pgadmin/azurecredentialcache
-rm -rf ${PWD}/pgadmin/sessions
+#rm -rf ${PWD}/pgadmin/sessions
 
 #rm -r ${PWD}/.venv
 
