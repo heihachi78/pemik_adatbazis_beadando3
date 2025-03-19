@@ -1,7 +1,3 @@
--- PROCEDURE: public.generate_payments()
-
--- DROP PROCEDURE IF EXISTS public.generate_payments();
-
 CREATE OR REPLACE PROCEDURE public.generate_payments(
 	)
 LANGUAGE 'plpgsql'

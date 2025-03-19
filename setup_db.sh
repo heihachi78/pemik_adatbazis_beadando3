@@ -8,6 +8,8 @@ docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/genera
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/calculate_interest_proc.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/calculate_interest_proc2.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/process_payment_proc.sql
+docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/process_new_payments_proc.sql
+docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/process_new_payments_job.sql
 echo "database structure created"
 
 echo "creating database structure in fin..."
@@ -18,7 +20,8 @@ echo "database structure created"
 
 echo "creating publications and subscriptions..."
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/pub_fin_data.sql
-docker exec -u postgres fin psql -p 5432 -U fin -d fin -q -f /mnt/sql/fin/sub_fin_data.sql
 docker exec -u postgres fin psql -p 5432 -U fin -d fin -q -f /mnt/sql/fin/pub_pay_data.sql
+
+docker exec -u postgres fin psql -p 5432 -U fin -d fin -q -f /mnt/sql/fin/sub_fin_data.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/sub_pay_data.sql
 echo "pubs and subs are created"

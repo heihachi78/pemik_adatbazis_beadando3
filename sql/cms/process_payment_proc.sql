@@ -1,7 +1,3 @@
--- PROCEDURE: public.process_payment(integer)
-
--- DROP PROCEDURE IF EXISTS public.process_payment(integer);
-
 CREATE OR REPLACE PROCEDURE public.process_payment(
 	IN p_payment_id integer)
 LANGUAGE 'plpgsql'
@@ -94,14 +90,14 @@ BEGIN
 			payment_id,
 			debt_amount_covered,
 			interest_amount_covered,
-			overpayment_amount,
+			overpayment,
 			created_at)
 		VALUES (
 			payment_record.debt_id,
 			p_payment_id,
 			c_debt_amount_covered,
 			c_interest_amount_covered,
-			payment_record.amount - remaining_interest_amount - payment_record.current_amount,
+			GREATEST(payment_record.amount - remaining_interest_amount - payment_record.current_amount, 0),
 			calc_to);
 
 		UPDATE 

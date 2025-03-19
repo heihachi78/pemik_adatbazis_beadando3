@@ -1,5 +1,5 @@
 CREATE PUBLICATION pub_pay_data 
-FOR TABLE ONLY payments (
+FOR TABLE ONLY public.payments (
 	payment_id, 
 	amount, 
 	payment_date, 

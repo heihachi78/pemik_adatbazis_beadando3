@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 print('Generating data...')
 
-PURCHASE_COUNT = 10
+PURCHASE_COUNT = 240
 MIN_BATCH_VALUE = 250_000
 MAX_BATCH_VALUE = 25_000_000
 MIN_AMOUNT = 25_000

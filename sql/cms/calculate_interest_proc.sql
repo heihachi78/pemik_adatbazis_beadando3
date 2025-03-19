@@ -1,7 +1,3 @@
--- PROCEDURE: public.calculate_interest()
-
--- DROP PROCEDURE IF EXISTS public.calculate_interest();
-
 CREATE OR REPLACE PROCEDURE public.calculate_interest(
 	)
 LANGUAGE 'plpgsql'

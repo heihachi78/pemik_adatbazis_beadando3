@@ -29,15 +29,20 @@ BEGIN
 		FROM 
 			public.fin_publicated_data f
 		WHERE
-			not exists (select 1 from payments p where p.payment_date + 1 > f.last_payment_date and p.case_id = f.case_id)
+			not exists (select 1 from payments p where p.payment_date + 1 > f.last_payment_date and p.case_id = f.case_id) and
+			f.closed_at is null and
+			f.overpayment = 0
     LOOP
 		if RANDOM() < 0.9 then continue; end if;
-		days_range := (cms_record.current_due_date - cms_record.last_payment_date) - 2;
-		if days_range < 3 then continue; end if;
-		r_payment_date := cms_record.last_payment_date + 1 + (RANDOM() * (days_range - 1))::INTEGER;
+		days_range := (cms_record.current_due_date - cms_record.last_payment_date) - 1;
+		if days_range < 2 then continue; end if;
+		r_payment_date := cms_record.last_payment_date + 1 + (RANDOM() * days_range)::INTEGER;
 		days_range := r_payment_date - cms_record.last_payment_date;
 		if days_range < 1 then continue; end if;
-		r_payment_amount := cms_record.current_amount + (cms_record.current_interest_amount * RANDOM());
+		r_payment_amount := (cms_record.current_amount + cms_record.current_interest_amount) * RANDOM();
+		if cms_record.current_amount < 5000 then
+			r_payment_amount := cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)));
+		end if;
 		INSERT INTO public.payments(
 			amount, 
 			payment_date, 

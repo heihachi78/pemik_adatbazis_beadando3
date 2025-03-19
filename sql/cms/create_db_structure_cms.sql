@@ -1,5 +1,6 @@
 BEGIN;
 
+
 CREATE TABLE IF NOT EXISTS public.cases
 (
     case_id serial NOT NULL,
@@ -217,7 +218,9 @@ CREATE TABLE IF NOT EXISTS public.fin_publicated_data
     case_id integer,
     bank_account_id integer,
     person_id integer,
-    refreshed_at timestamp with time zone NOT NULL DEFAULT now()
+    refreshed_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT fin_publicated_data_pkey PRIMARY KEY (bank_account_id, person_id, case_id),
+    CONSTRAINT fin_publicated_data_ukey UNIQUE (case_id, bank_account_id, person_id)
 );
 
 ALTER TABLE IF EXISTS public.cases
@@ -398,7 +401,6 @@ ALTER TABLE IF EXISTS public.fin_publicated_data
     ON DELETE NO ACTION;
 CREATE INDEX IF NOT EXISTS fki_fin_pub_data_person_fkey
     ON public.fin_publicated_data(person_id);
-
 
 CREATE OR REPLACE VIEW public.partner_statistics_v
  AS

@@ -1,7 +1,3 @@
--- PROCEDURE: public.calculate_interest(integer)
-
--- DROP PROCEDURE IF EXISTS public.calculate_interest(integer);
-
 CREATE OR REPLACE PROCEDURE public.calculate_interest(
 	IN p_case_id integer)
 LANGUAGE 'plpgsql'
