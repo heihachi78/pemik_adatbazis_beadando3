@@ -26,13 +26,13 @@ WHEN MATCHED AND
     f.first_name != t.first_name OR 
     f.last_name != t.last_name OR 
     f.birth_name != t.birth_name OR 
-	f.closed_at != t.closed_at OR 
+	coalesce(f.closed_at, CURRENT_DATE) != coalesce(t.closed_at, CURRENT_DATE) OR 
 	f.current_amount != t.current_amount OR 
 	f.current_interest_amount != t.current_interest_amount OR 
 	f.overpayment != t.overpayment OR 
-	f.last_payment_date != t.last_payment_date OR 
+	coalesce(f.last_payment_date, CURRENT_DATE) != coalesce(t.last_payment_date, CURRENT_DATE) OR 
 	f.current_due_date != t.current_due_date OR 
-	f.valid_to != t.valid_to)
+	coalesce(f.valid_to, CURRENT_DATE) != coalesce(t.valid_to, CURRENT_DATE))
  THEN
 	UPDATE SET 
 		partner_case_number = t.partner_case_number,

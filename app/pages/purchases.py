@@ -54,7 +54,7 @@ def show_purchases():
 
         #button functions
         def add_data():
-            data_table.update_from_pandas(insert_row(new_purchase_batch_number.value, new_purchase_partner_id.value, date.today(), new_purchase_batch_purchase_value.value))
+            data_table.update_from_pandas(insert_row(new_purchase_batch_number.value, new_purchase_partner_id.value, new_purchase_date.value, new_purchase_batch_purchase_value.value))
             clear_new_values()
             toggle_add_button()
 
@@ -122,7 +122,7 @@ def show_purchases():
 
         #visibility toggles
         def toggle_new_card_visibility():
-            data_table.selected = set()
+            data_table.selected = []
             delete_card.set_visibility(False)
             update_card.set_visibility(False)
             new_card.set_visibility(not(new_card.visible))
@@ -133,7 +133,7 @@ def show_purchases():
 
 
         def toggle_delete_card_visibility():
-            data_table.selected = set()
+            data_table.selected = []
             new_card.set_visibility(False)
             update_card.set_visibility(False)
             delete_card.set_visibility(not(delete_card.visible))
@@ -147,7 +147,7 @@ def show_purchases():
 
 
         def toggle_update_card_visibility():
-            data_table.selected = set()
+            data_table.selected = []
             delete_card.set_visibility(False)
             new_card.set_visibility(False)
             update_card.set_visibility(not(update_card.visible))
@@ -254,4 +254,4 @@ def show_purchases():
         delete_card.set_visibility(False)
         update_card.set_visibility(False)
 
-    connection.close()
+    #connection.close()

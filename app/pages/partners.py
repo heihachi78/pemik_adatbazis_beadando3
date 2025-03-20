@@ -110,7 +110,7 @@ def show_partners():
             update_card.set_visibility(False)
             new_card.set_visibility(not(new_card.visible))
             data_table.set_selection('none')
-            data_table.selected = set()
+            data_table.selected = []
             update_partner_name.set_value(None)
             update_partner_sector_id.set_value(None)
             new_partner_name.set_value(None)
@@ -126,7 +126,7 @@ def show_partners():
                 data_table.set_selection('multiple')
             else:
                 data_table.set_selection('none')
-            data_table.selected = set()
+            data_table.selected = []
             update_partner_name.set_value(None)
             update_partner_sector_id.set_value(None)
             new_partner_name.set_value(None)
@@ -142,7 +142,7 @@ def show_partners():
                 data_table.set_selection('single')
             else:
                 data_table.set_selection('none')
-            data_table.selected = set()
+            data_table.selected = []
             update_partner_name.set_value(None)
             update_partner_sector_id.set_value(None)
             new_partner_name.set_value(None)
@@ -211,4 +211,4 @@ def show_partners():
         delete_card.set_visibility(False)
         update_card.set_visibility(False)
 
-    connection.close()
+    #connection.close()

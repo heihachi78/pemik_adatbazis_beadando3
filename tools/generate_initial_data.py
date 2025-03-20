@@ -193,7 +193,7 @@ def insert_case(purchase_id, partner_case_number, due_date, amount, created_at, 
                          "interest_rate": interest_rate}).fetchone()[0]
     return case_id
 
-def generate_random_case(partner_id, purchased_at, created_at):
+def generate_random_case(purchase_id, partner_id, purchased_at, created_at):
     partner_case_number = generate_random_case_number(partner_id)
     from_date = purchased_at -  timedelta(days=np.random.randint(62, 365))
     to_date = purchased_at - timedelta(days=np.random.randint(31, 62))
@@ -264,7 +264,7 @@ try:
             sum_amount = 0
             cnt = 0
             while sum_amount < (batch_purchase_value * MARGIN):
-                case_id, amount = generate_random_case(partner_id, purchased_at, created_at)
+                case_id, amount = generate_random_case(purchase_id, partner_id, purchased_at, created_at)
                 person_id, _, _ = generate_debtor_all(dw, dn, dc, created_at, case_id, 1)
                 gad = np.random.randint(1, TYPE3_DEBTOR_RATE)
                 if gad == 3:

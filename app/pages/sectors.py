@@ -10,7 +10,7 @@ def show_sectors():
     with theme.frame('Szektorok karbantartása'):
         ui.page_title('Szektorok karbantartása')
 
-        engine = create_engine(config.database.SRV1_DB_CONN_INFO)
+        engine = create_engine(config.database.POOL_CONN_INFO)
         connection = engine.connect()
 
         #database functions
@@ -99,7 +99,7 @@ def show_sectors():
             update_card.set_visibility(False)
             new_card.set_visibility(not(new_card.visible))
             data_table.set_selection('none')
-            data_table.selected = set()
+            data_table.selected = []
             update_sector_name.set_value(None)
             new_sector_name.set_value(None)
             toggle_add_button()
@@ -113,7 +113,7 @@ def show_sectors():
                 data_table.set_selection('multiple')
             else:
                 data_table.set_selection('none')
-            data_table.selected = set()
+            data_table.selected = []
             update_sector_name.set_value(None)
             new_sector_name.set_value(None)
             toggle_delete_button()
@@ -127,7 +127,7 @@ def show_sectors():
                 data_table.set_selection('single')
             else:
                 data_table.set_selection('none')
-            data_table.selected = set()
+            data_table.selected = []
             update_sector_name.set_value(None)
             new_sector_name.set_value(None)
             toggle_update_button()
@@ -186,4 +186,4 @@ def show_sectors():
         delete_card.set_visibility(False)
         update_card.set_visibility(False)
 
-    connection.close()
+    #connection.close()

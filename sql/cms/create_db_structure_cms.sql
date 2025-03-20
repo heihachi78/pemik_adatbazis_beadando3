@@ -525,21 +525,21 @@ CREATE OR REPLACE VIEW public.fin_publicated_data_v
     c.closed_at,
     c.current_amount,
     c.current_interest_amount,
-    os.overpayment,
-    lpd.last_payment_date,
+    COALESCE(os.overpayment, 0::numeric) AS overpayment,
+    COALESCE(lpd.last_payment_date, c.due_date) AS last_payment_date,
     c.current_due_date,
     h.valid_to,
     c.case_id,
     a.bank_account_id,
     p.person_id
-   FROM cases c,
-    overpayment_sum os,
-    last_payment_date lpd,
+   FROM cases c
+     LEFT JOIN last_payment_date lpd ON lpd.case_id = c.case_id
+     LEFT JOIN overpayment_sum os ON os.case_id = lpd.case_id,
     account_holders h,
     persons p,
     debtors d,
     bank_accounts a
-  WHERE c.deleted_at IS NULL AND (c.closed_at IS NULL OR c.closed_at IS NOT NULL AND os.overpayment > 0::numeric) AND os.case_id = c.case_id AND lpd.case_id = c.case_id AND h.person_id = p.person_id AND h.deleted_at IS NULL AND p.person_id = d.person_id AND d.deleted_at IS NULL AND d.case_id = c.case_id AND a.bank_account_id = h.bank_account_id AND a.deleted_at IS NULL AND h.valid_from < lpd.last_payment_date;
+  WHERE c.deleted_at IS NULL AND (c.closed_at IS NULL OR c.closed_at IS NOT NULL AND os.overpayment > 0::numeric) AND h.person_id = p.person_id AND h.deleted_at IS NULL AND p.person_id = d.person_id AND d.deleted_at IS NULL AND d.case_id = c.case_id AND a.bank_account_id = h.bank_account_id AND a.deleted_at IS NULL AND h.valid_from < COALESCE(lpd.last_payment_date::timestamp with time zone, now());
 
 ALTER TABLE public.fin_publicated_data_v
     OWNER TO cms;

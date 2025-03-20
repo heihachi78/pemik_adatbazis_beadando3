@@ -7,6 +7,7 @@ DECLARE
 	days_range INTEGER;
 	r_payment_date DATE;
 	r_payment_amount NUMERIC;
+	last_case_id INTEGER := 0;
 BEGIN
     FOR cms_record IN 
         SELECT 
@@ -34,12 +35,13 @@ BEGIN
 			f.overpayment = 0
     LOOP
 		if RANDOM() < 0.9 then continue; end if;
-		days_range := (cms_record.current_due_date - cms_record.last_payment_date) - 1;
-		if days_range < 2 then continue; end if;
-		r_payment_date := cms_record.last_payment_date + 1 + (RANDOM() * days_range)::INTEGER;
+		if last_case_id = cms_record.case_id then continue; end if;
+		days_range := (cms_record.current_due_date - cms_record.last_payment_date) - 2;
+		if days_range < 3 or then continue; end if;
+		r_payment_date := cms_record.last_payment_date + 2 + (RANDOM() * days_range)::INTEGER;
 		days_range := r_payment_date - cms_record.last_payment_date;
 		if days_range < 1 then continue; end if;
-		r_payment_amount := (cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)))) * RANDOM();
+		r_payment_amount := (cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)))) * ((RANDOM() * 0.5) + 0.5);
 		if cms_record.current_amount < 5000 then
 			r_payment_amount := cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)));
 		end if;
@@ -61,7 +63,8 @@ BEGIN
 			now(), 
 			null, 
 			null
-	);
+		);
+		last_case_id := cms_record.case_id;
     END LOOP;
     
 END;
