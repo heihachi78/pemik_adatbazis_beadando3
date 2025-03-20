@@ -1,9 +1,11 @@
 from datetime import date
 from sqlalchemy import create_engine, text
 from nicegui import ui
+from datetime import datetime
 import pandas as pd
 import theme
 import config.database
+import process.load_purchase_data
 
 
 
@@ -52,6 +54,12 @@ def show_purchases():
             return select_rows()
 
 
+        def generate(partner_id: int, purchase_id: int, purchased_at: date, batch_purchase_value: int, created_at: date):
+            process.load_purchase_data.new_purchase(partner_id=partner_id, purchase_id=purchase_id, purchased_at=datetime.strptime(purchased_at, "%Y-%m-%d").date(), batch_purchase_value=batch_purchase_value, created_at=datetime.fromisoformat(created_at).date())
+            ui.notify('Az uj rekordok be lettek töltve.')
+            return select_rows()
+
+
         #button functions
         def add_data():
             data_table.update_from_pandas(insert_row(new_purchase_batch_number.value, new_purchase_partner_id.value, new_purchase_date.value, new_purchase_batch_purchase_value.value))
@@ -72,6 +80,12 @@ def show_purchases():
             clear_updated_values()
             toggle_update_button()
 
+
+        def load_data():
+            for row_data in data_table.selected:
+                generate(partner_id=row_data["partner_id"], purchase_id=row_data["purchase_id"], purchased_at=row_data["purchased_at"], batch_purchase_value=row_data["batch_purchase_value"], created_at=row_data["created_at"])
+            data_table.selected = []
+            toggle_load_button()
 
         #button toggles
         def toggle_add_button():
@@ -103,6 +117,11 @@ def show_purchases():
             else:
                 update_button.disable()
 
+        def toggle_load_button():
+            if data_table.selected:
+                load_button.enable()
+            else:
+                load_button.disable()
 
         #validation functions
         def validate_batch_number(value):
@@ -125,6 +144,7 @@ def show_purchases():
             data_table.selected = []
             delete_card.set_visibility(False)
             update_card.set_visibility(False)
+            load_card.set_visibility(False)
             new_card.set_visibility(not(new_card.visible))
             data_table.set_selection('none')
             clear_updated_values()
@@ -136,6 +156,7 @@ def show_purchases():
             data_table.selected = []
             new_card.set_visibility(False)
             update_card.set_visibility(False)
+            load_card.set_visibility(False)
             delete_card.set_visibility(not(delete_card.visible))
             if delete_card.visible:
                 data_table.set_selection('multiple')
@@ -150,6 +171,7 @@ def show_purchases():
             data_table.selected = []
             delete_card.set_visibility(False)
             new_card.set_visibility(False)
+            load_card.set_visibility(False)
             update_card.set_visibility(not(update_card.visible))
             if update_card.visible:
                 data_table.set_selection('single')
@@ -159,11 +181,26 @@ def show_purchases():
             clear_new_values()
             toggle_update_button()
 
+        def toggle_load_card_visibility():
+            data_table.selected = []
+            delete_card.set_visibility(False)
+            new_card.set_visibility(False)
+            update_card.set_visibility(False)
+            load_card.set_visibility(not(load_card.visible))
+            if load_card.visible:
+                data_table.set_selection('single')
+            else:
+                load_card.set_selection('none')
+            clear_updated_values()
+            clear_new_values()
+            toggle_load_button()
+
 
         #record selection handling
         def handle_selection():
             toggle_delete_button()
             toggle_update_button()
+            toggle_load_button()
             if data_table.selected:
                 updated_purchase_batch_number.set_value(data_table.selected[0]['batch_number'])
                 updated_purchase_batch_purchase_value.set_value(data_table.selected[0]['batch_purchase_value'])
@@ -208,6 +245,7 @@ def show_purchases():
             new_card_button = ui.button('+', on_click=toggle_new_card_visibility).props('color=blue')
             delete_card_button = ui.button('-', on_click=toggle_delete_card_visibility).props('color=red')
             update_card_button = ui.button('!', on_click=toggle_update_card_visibility).props('color=green')
+            load_card_button = ui.button('#', on_click=toggle_load_card_visibility).props('color=purple')
 
         new_card = ui.card()
         with new_card:
@@ -241,17 +279,22 @@ def show_purchases():
                     ui.icon('edit_calendar').on('click', menu.open).classes('cursor-pointer')
             update_button = ui.button('Vasarlas modositasa', on_click=update_data).props('color=green')
 
+        load_card = ui.card()
+        with load_card:
+            load_button = ui.button('Adatok betoltese a kijelolt vasarlashoz', on_click=load_data).props('color=purple')
+
         search_field = ui.input('Keresés', placeholder='írja be a keresendő vasarlas valamely adatát').props('clearable').props('size=100')
         data_table = ui.table.from_pandas(select_rows(), row_key='purchase_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
         search_field.bind_value(data_table, 'filter')
-
 
         #initial visibility settings
         toggle_add_button()
         toggle_delete_button()
         toggle_update_button()
+        toggle_load_button()
         new_card.set_visibility(False)
         delete_card.set_visibility(False)
         update_card.set_visibility(False)
+        load_card.set_visibility(False)
 
     #connection.close()

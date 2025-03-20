@@ -10,9 +10,6 @@ from datetime import datetime
 
 
 
-
-print('Generating data...')
-
 PURCHASE_COUNT = 1
 MIN_BATCH_VALUE = 250_000
 MAX_BATCH_VALUE = 25_000_000
@@ -198,17 +195,11 @@ def new_purchase(partner_id, purchase_id, purchased_at, batch_purchase_value, cr
             print(e)    
             connection.rollback()
 
-        print('calculating interest...')
         calculate_interest()
         connection.commit()
-        print('Data generated successfully!')
 
     except Exception as e:
         print(type(e))
         print(e.args)
         print(e)
         connection.rollback()
-        print('Error during data generation:', e)
-
-new_purchase(partner_id=10, purchase_id=241, purchased_at=date(year=2025, month=3, day=1), batch_purchase_value=1_000_000, created_at=date(year=2025, month=3, day=20))
-connection.close()
