@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE public.process_new_payments()
+CREATE OR REPLACE PROCEDURE public.process_new_payments() 
 LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE
@@ -10,7 +10,8 @@ BEGIN
 		from 
 			payments p
 		where
-			not exists (select 1 from payed_debts d where d.payment_id = p.payment_id)
+			not exists (select 1 from payed_debts d where d.payment_id = p.payment_id) and
+			p.deleted_at is null
 		order by 
 			p.created_at asc,
 			p.payment_date asc,

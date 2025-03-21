@@ -5,7 +5,7 @@ docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/create
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/fin_publicated_data_job.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/calculate_interest_func.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/generate_payments_proc.sql
-docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/calculate_interest_all_proc.sql
+docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/generate_interest_all_proc.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/calculate_interest_for_case_proc.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/process_payment_proc.sql
 docker exec -u postgres pgp psql -p 5432 -U cms -d cms -q -f /mnt/sql/cms/process_new_payments_proc.sql

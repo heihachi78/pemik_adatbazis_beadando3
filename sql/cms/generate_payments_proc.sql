@@ -68,15 +68,6 @@ BEGIN
 		select into sum_covered_interest_amount sum(interest_amount_covered) from payed_debts where debt_id in (select d.debt_id from debts d where d.case_id = case_record.case_id);
 		remaining_interest_amount := sum_interest_amount - coalesce(sum_covered_interest_amount, 0.0);
 		
-		UPDATE 
-			cases c
-		SET 
-			updated_at = calc_to,
-			current_interest_amount = remaining_interest_amount,
-			current_due_date = calc_to + 1
-		WHERE 
-			c.case_id = case_record.case_id;
-
 		payment_amount := ((case_record.current_amount + remaining_interest_amount) * ((RANDOM() * 0.25) + 0.75));
 		
 		IF payment_amount < 25000 THEN
@@ -123,9 +114,11 @@ BEGIN
 		UPDATE 
 			cases c
 		SET 
-			current_interest_amount = current_interest_amount - c_interest_amount_covered,
+			current_interest_amount = remaining_interest_amount - c_interest_amount_covered,
 			current_amount = current_amount - c_debt_amount_covered,
-			closed_at = case when abs(current_amount - c_debt_amount_covered) < 1 then calc_to else null end
+			closed_at = case when abs(current_amount - c_debt_amount_covered) < 1 then calc_to else null end,
+			current_due_date = calc_to + 1,
+			updated_at = calc_to
 		WHERE 
 			c.case_id = case_record.case_id;
 

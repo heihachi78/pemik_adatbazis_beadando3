@@ -28,10 +28,10 @@ docker network rm postgresnet
 
 docker network create postgresnet
 
-docker image rm pgs
-docker image rm pgp
-docker build -t pgs ${PWD}/DockerPostgres
-docker build -t pgp ${PWD}/DockerPgPool
+#docker image rm pgs
+#docker image rm pgp
+#docker build -t pgs ${PWD}/DockerPostgres
+#docker build -t pgp ${PWD}/DockerPgPool
 
 docker run \
     --net postgresnet \

@@ -68,15 +68,6 @@ BEGIN
 		select into sum_covered_interest_amount sum(interest_amount_covered) from payed_debts where debt_id in (select d.debt_id from debts d where d.case_id = payment_record.case_id);
 		remaining_interest_amount := sum_interest_amount - coalesce(sum_covered_interest_amount, 0.0);
 
-		UPDATE 
-			cases c
-		SET 
-			updated_at = calc_to,
-			current_interest_amount = remaining_interest_amount,
-			current_due_date = calc_to + 1
-		WHERE 
-			c.case_id = payment_record.case_id;
-
 		IF payment_record.amount < remaining_interest_amount THEN
 			c_interest_amount_covered := payment_record.amount;
 			c_debt_amount_covered := 0.0;
@@ -103,9 +94,11 @@ BEGIN
 		UPDATE 
 			cases c
 		SET 
-			current_interest_amount = current_interest_amount - c_interest_amount_covered,
+			current_interest_amount = remaining_interest_amount - c_interest_amount_covered,
 			current_amount = current_amount - c_debt_amount_covered,
-			closed_at = case when abs(current_amount - c_debt_amount_covered) < 1 then calc_to else null end
+			closed_at = case when abs(current_amount - c_debt_amount_covered) < 1 then calc_to else null end,
+			updated_at = calc_to,
+			current_due_date = calc_to + 1
 		WHERE 
 			c.case_id = payment_record.case_id;
 

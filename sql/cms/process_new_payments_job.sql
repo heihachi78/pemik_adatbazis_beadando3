@@ -27,7 +27,7 @@ INSERT INTO pgagent.pga_schedule(
     jid, 'process_new_payments_sch'::text, ''::text, true,
     '2025-03-19 16:05:00 +01:00'::timestamp with time zone, 
     -- Minutes
-    '{t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f,t,f}'::bool[]::boolean[],
+    '{t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f,t,f,f}'::bool[]::boolean[],
     -- Hours
     '{t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t,t}'::bool[]::boolean[],
     -- Week days

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE public.calculate_interest_all(
+CREATE OR REPLACE PROCEDURE public.generate_interest_all(
 	)
 LANGUAGE 'plpgsql'
 AS $BODY$
@@ -77,5 +77,5 @@ BEGIN
 	END LOOP;
 END;
 $BODY$;
-ALTER PROCEDURE public.calculate_interest_all()
+ALTER PROCEDURE public.generate_interest_all()
     OWNER TO cms;

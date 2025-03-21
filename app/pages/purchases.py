@@ -1,6 +1,6 @@
 from datetime import date
 from sqlalchemy import create_engine, text
-from nicegui import ui
+from nicegui import ui, run
 from datetime import datetime
 import pandas as pd
 import theme
@@ -62,30 +62,27 @@ def show_purchases():
 
         #button functions
         def add_data():
+            toggle_add_button()
             data_table.update_from_pandas(insert_row(new_purchase_batch_number.value, new_purchase_partner_id.value, new_purchase_date.value, new_purchase_batch_purchase_value.value))
             clear_new_values()
-            toggle_add_button()
-
 
         def delete_data():
+            toggle_delete_button()
             for row_data in data_table.selected:
                 delete_row(row_data["purchase_id"])
             data_table.update_from_pandas(select_rows())
-            toggle_delete_button()
-
 
         def update_data():
+            toggle_update_button()
             for row_data in data_table.selected:
                 data_table.update_from_pandas(update_row(row_data["purchase_id"], updated_purchase_batch_number.value, updated_purchase_partner_id.value, updated_purchase_date.value, updated_purchase_batch_purchase_value.value))
             clear_updated_values()
-            toggle_update_button()
-
 
         def load_data():
+            toggle_load_button()
             for row_data in data_table.selected:
                 generate(partner_id=row_data["partner_id"], purchase_id=row_data["purchase_id"], purchased_at=row_data["purchased_at"], batch_purchase_value=row_data["batch_purchase_value"], created_at=row_data["created_at"])
             data_table.selected = []
-            toggle_load_button()
 
         #button toggles
         def toggle_add_button():

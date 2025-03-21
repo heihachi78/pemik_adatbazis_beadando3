@@ -241,7 +241,7 @@ def get_case_numbers():
     return all_cases, closed_cases
 
 def calculate_interest():
-    connection.execute(text("call calculate_interest_all();"))
+    connection.execute(text("call generate_interest_all();"))
 
 try:
     initialize()

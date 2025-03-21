@@ -1,10 +1,9 @@
 import os
 import random
 import string
-
 from datetime import date, timedelta
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import Boolean, create_engine, text
 import numpy as np
 from datetime import datetime
 
@@ -137,7 +136,7 @@ def generate_random_case(purchase_id, partner_id, purchased_at, created_at):
     if np.random.randint(1, AMOUNT_OUTLIER_RATE) == 7:
         amount += MAX_AMOUNT
     case_id = insert_case(purchase_id=purchase_id, partner_case_number=partner_case_number, due_date=due_date, amount=amount, created_at=created_at, interest_rate=interest_rate)
-    return case_id, amount
+    return case_id, amount, due_date
 
 def insert_debtor(case_id, person_id, created_at, type):
     return connection.execute(text("INSERT INTO debtors(case_id, person_id, debtor_type_id, created_at) VALUES (:case_id, :person_id, :debtor_type_id, :created_at) returning debtor_id"), 
@@ -150,21 +149,21 @@ def update_calculated_purchase_value(purchase_id, batch_purchase_value, sum_amou
     connection.execute(text("UPDATE cases SET calculated_purchase_value = round((amount/:sum_amount) * :batch_purchase_value, 3) WHERE purchase_id = :purchase_id"), 
                         {"purchase_id": purchase_id, "batch_purchase_value": batch_purchase_value, "sum_amount": sum_amount})
 
-def insert_account_holder(person_id, bank_account_id, created_at):
-    connection.execute(text("INSERT INTO account_holders(person_id, bank_account_id, created_at, valid_from) VALUES (:person_id, :bank_account_id, :created_at, :created_at)"), 
-                        {"person_id": person_id, "bank_account_id": bank_account_id, "created_at": created_at})
+def insert_account_holder(person_id, bank_account_id, created_at, due_date):
+    connection.execute(text("INSERT INTO account_holders(person_id, bank_account_id, created_at, valid_from) VALUES (:person_id, :bank_account_id, :created_at, :due_date)"), 
+                        {"person_id": person_id, "bank_account_id": bank_account_id, "created_at": created_at, "due_date": due_date})
 
-def generate_debtor_all(dw, dn, dc, created_at, case_id, type):
+def generate_debtor_all(dw, dn, dc, created_at, case_id, type, due_date):
     person_id = generate_random_person(dw, dn, dc)
     bank_account_id = create_bank_account(created_at)
-    insert_account_holder(person_id, bank_account_id, created_at)
+    insert_account_holder(person_id, bank_account_id, created_at, due_date)
     debtor_id = insert_debtor(case_id, person_id, created_at, type)
     return person_id, debtor_id, bank_account_id
 
 def calculate_interest():
-    connection.execute(text("call calculate_interest_all();"))
+    connection.execute(text("call generate_interest_all();"))
 
-def new_purchase(partner_id, purchase_id, purchased_at, batch_purchase_value, created_at) -> None:
+def new_purchase(partner_id, purchase_id, purchased_at, batch_purchase_value, created_at) -> Boolean:
     try:
         
         dn = load_csv(file_name='../../tools/data/utonevek_nem.csv', sep=';')
@@ -177,8 +176,8 @@ def new_purchase(partner_id, purchase_id, purchased_at, batch_purchase_value, cr
             cnt = 0
             while sum_amount < (batch_purchase_value * MARGIN):
                 try:
-                    case_id, amount = generate_random_case(purchase_id=purchase_id, partner_id=partner_id, purchased_at=purchased_at, created_at=created_at)
-                    _, _, _ = generate_debtor_all(dw=dw, dn=dn, dc=dc, created_at=created_at, case_id=case_id, type=1)
+                    case_id, amount, due_date = generate_random_case(purchase_id=purchase_id, partner_id=partner_id, purchased_at=purchased_at, created_at=created_at)
+                    _, _, _ = generate_debtor_all(dw=dw, dn=dn, dc=dc, created_at=created_at, case_id=case_id, type=1, due_date=due_date)
                     cnt += 1
                     sum_amount += amount
                     connection.commit()
@@ -194,12 +193,15 @@ def new_purchase(partner_id, purchase_id, purchased_at, batch_purchase_value, cr
             print(e.args)
             print(e)    
             connection.rollback()
+            return False
 
         calculate_interest()
         connection.commit()
+        return True
 
     except Exception as e:
         print(type(e))
         print(e.args)
         print(e)
         connection.rollback()
+        return False

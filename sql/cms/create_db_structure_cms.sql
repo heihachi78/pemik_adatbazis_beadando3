@@ -514,7 +514,8 @@ CREATE OR REPLACE VIEW public.fin_publicated_data_v
          SELECT p_1.case_id,
             max(p_1.payment_date) AS last_payment_date
            FROM payments p_1
-          WHERE p_1.deleted_at IS NULL
+          WHERE p_1.deleted_at IS NULL AND
+                exists (select 1 from payed_debts o where o.payment_id = p_1.payment_id and o.deleted_at is null)
           GROUP BY p_1.case_id
         )
  SELECT c.partner_case_number,
@@ -539,7 +540,17 @@ CREATE OR REPLACE VIEW public.fin_publicated_data_v
     persons p,
     debtors d,
     bank_accounts a
-  WHERE c.deleted_at IS NULL AND (c.closed_at IS NULL OR c.closed_at IS NOT NULL AND os.overpayment > 0::numeric) AND h.person_id = p.person_id AND h.deleted_at IS NULL AND p.person_id = d.person_id AND d.deleted_at IS NULL AND d.case_id = c.case_id AND a.bank_account_id = h.bank_account_id AND a.deleted_at IS NULL AND h.valid_from < COALESCE(lpd.last_payment_date::timestamp with time zone, now());
+  WHERE 
+    c.deleted_at IS NULL AND 
+    (c.closed_at IS NULL OR (c.closed_at IS NOT NULL AND coalesce(os.overpayment, 0) > 0::numeric)) AND 
+    h.person_id = p.person_id AND 
+    h.deleted_at IS NULL AND 
+    p.person_id = d.person_id AND 
+    d.deleted_at IS NULL AND 
+    d.case_id = c.case_id AND 
+    a.bank_account_id = h.bank_account_id AND 
+    a.deleted_at IS NULL AND 
+    h.valid_from < COALESCE(lpd.last_payment_date::timestamp with time zone, now());
 
 ALTER TABLE public.fin_publicated_data_v
     OWNER TO cms;
