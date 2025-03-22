@@ -13,7 +13,7 @@ def show_purchases():
     with theme.frame('Vasarlasok karbantartása'):
         ui.page_title('Vasarlasok karbantartása')
 
-        engine = create_engine(config.database.SRV1_DB_CONN_INFO)
+        engine = create_engine(config.database.POOL_CONN_INFO)
         connection = engine.connect()
 
 

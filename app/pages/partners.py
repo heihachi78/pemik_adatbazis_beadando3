@@ -9,7 +9,7 @@ def show_partners():
     with theme.frame('Partnerek karbantartása'):
         ui.page_title('Partnerek karbantartása')
 
-        engine = create_engine(config.database.SRV1_DB_CONN_INFO)
+        engine = create_engine(config.database.POOL_CONN_INFO)
         connection = engine.connect()
 
 

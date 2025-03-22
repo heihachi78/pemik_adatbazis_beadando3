@@ -5,15 +5,14 @@ from datetime import datetime
 import pandas as pd
 import theme
 import config.database
-import process.load_purchase_data
 
 
 
-def show_cases():
+def show_open_cases():
     with theme.frame('Nyitott ugyek karbantartása'):
         ui.page_title('Nyitott ugyek karbantartása')
 
-        engine = create_engine(config.database.SRV1_DB_CONN_INFO)
+        engine = create_engine(config.database.POOL_CONN_INFO)
         connection = engine.connect()
 
         #database functions
@@ -48,7 +47,6 @@ select
 	t."name" as partner_name, 
 	p.batch_number, 
 	c.partner_case_number, 
-	c.closed_at::date, 
 	c.due_date, 
 	c.amount, 
 	c.interest_rate * 100 as interest_rate, 
@@ -141,7 +139,6 @@ order by
                 {'name': 'partner_name', 'label': 'Partner', 'field': 'partner_name', 'sortable': True},
                 {'name': 'batch_number', 'label': 'Batch', 'field': 'batch_number', 'sortable': True},
                 {'name': 'partner_case_number', 'label': 'Partner ugy szama', 'field': 'partner_case_number', 'sortable': True},
-                {'name': 'closed_at', 'label': 'Lezaras datuma', 'field': 'closed_at', 'sortable': True},
                 {'name': 'due_date', 'label': 'Eredeti hatarido', 'field': 'due_date', 'sortable': True},
                 {'name': 'amount', 'label': 'Vasarlaskori tartozas', 'field': 'amount', 'sortable': True},
                 {'name': 'interest_rate', 'label': 'Vasarlaskori kamat merteke', 'field': 'interest_rate', 'sortable': True},

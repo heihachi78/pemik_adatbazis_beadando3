@@ -8,5 +8,6 @@ def menu() -> None:
     ui.link('Partnerek', '/partners/').classes(replace='text-black')
     ui.link('Vasarlasok', '/purchases/').classes(replace='text-black')
     ui.link('Nyitott ugyek', '/opencases/').classes(replace='text-black')
+    ui.link('Zart ugyek', '/closedcases/').classes(replace='text-black')
     ui.link('Riport', '/report/').classes(replace='text-black')
     ui.link('Info', '/info/').classes(replace='text-black')
