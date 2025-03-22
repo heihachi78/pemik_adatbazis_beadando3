@@ -1,5 +1,5 @@
 CREATE SUBSCRIPTION sub_fin_data 
-CONNECTION 'host=pgp port=5432 user=cms dbname=cms passfile=/mnt/config/.pgpass connect_timeout=10 sslmode=prefer' 
+CONNECTION 'host=srv1 port=5432 user=cms dbname=cms passfile=/mnt/config/.pgpass connect_timeout=10 sslmode=prefer' 
 PUBLICATION pub_fin_data 
 WITH (
     connect = true, 
