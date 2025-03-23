@@ -12,6 +12,7 @@ A megvalósított rendszerben az adósságkezelő cég fő ügyviteli folyamatá
 Az adatbázis kezelő rendszer a PostgreSQL(1), ezt egészíti ki a Pgpool(2) ami a load balancingot látja el, a replikáció felügyeletét a rempgr(3) valósítja meg, míg a jobok futtatását a pgAgent(4) látja el. A fejlesztés során a pgAdmin(5) környezetet alkalmaztam az adatbázis tervezéséhez és fejlesztéséhez, míg a felhasználói alkalmazást Visual Studio Code(6) segítségével fejlesztettem Python(7) nyelven NiceGUI(8) keretrendszerrel. Az egész rendszer Docker(9) környezetben fut, minden főbb komponens egy önálló konténerben fut.
 
 ## A rendszer magas szintű logikai felépítése
+![alt text](doc/adatnazis_2.drawio.png)
 A rendszer legfontosabb komponensei a két egymással teljesen szinkronban lévő adatbázis, amelyeken az ügyviteli szoftver adatbázisa fut. A két szerver közül az elsődleges szerver írási és olvasási műveleteket is fogad, míg a másodlagos csak olvasási műveleteket tesz lehetővé. Ezek elé a szerverek elé van bekötve a load balancer, amely feladata jelen esetben az írási és olvasási műveletek tranzakció szintű szétválasztása. Ezekhez kapcsolódik egy újabb adatbázis, amely a pénzügyi rendszer adatbázisa. Ennek feladata az rendszerben szereplő adósok adatainak fogadása és a beérkező fizetések adatainak szolgáltatása az ügyviteli rendszer felé.
  
 ## Az ügyviteli rendszer szinkronizálása
@@ -29,11 +30,12 @@ A pénzügyi rendszerbe csak a pénzügy számára szükséges adatok kerülnek 
  
 Ideális esetben és valós körülmények között az áttöltések éjszaka történnek, a bemutató idejére azonban ezek a folyamatok fel lesznek gyorsítva, hogy szorosan egymást kövessék és látszódjon az eredményük.
 Jelen feladatban a pénzügyi rendszer működésének megvalósítása nem volt cél, a küldött és fogadott adatok miatt van rá szükség, ezért annak nincs felülete és csak a fent leírt műveletekben vesz részt, ezért a munkatársak által végzett feladatok szimulálására az adatokat véletlenszerűen generálja.
+![alt text](doc/logical_repl.drawio.png)
  
 ## A rendszer egyes alacsonyabb szintű komponensei
-![alt text](doc/ab_beadando_J0P7MF.drawio.png)
+ ![alt text](doc/ab_beadando_J0P7MF.drawio.png)
 ## A használt adatbázis modell
- 
+ ![alt text](doc/ERD(1).png)
  
 ## Hivatkozások
 (1) PostgreSQL: https://www.postgresql.org/
