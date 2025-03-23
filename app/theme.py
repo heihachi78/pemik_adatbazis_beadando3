@@ -18,7 +18,7 @@ def frame(navtitle: str):
     #with ui.footer(value=False) as footer:
     #    ui.label('Footer')
 
-    with ui.left_drawer().classes('bg-blue-100') as left_drawer:
+    with ui.left_drawer().classes('bg-blue-100').props('width=150 bordered') as left_drawer:
         with ui.column():
             menu()
             
