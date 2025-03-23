@@ -9,8 +9,8 @@ import config.database
 
 
 def show_open_cases():
-    with theme.frame('Nyitott ugyek karbantartása'):
-        ui.page_title('Nyitott ugyek karbantartása')
+    with theme.frame('Nyitott ügyek karbantartása'):
+        ui.page_title('Nyitott ügyek karbantartása')
 
         engine = create_engine(config.database.POOL_CONN_INFO)
         connection = engine.connect()
@@ -102,9 +102,9 @@ order by
         #validation functions
         def validate_interest_rate(value):
             if value and value < 0.1:
-                return 'A kamat legkisebb erteke 0.001 lehet!'
+                return 'A kamat legkisebb értéke 0.001 lehet!'
             if value and value > 100:
-                return 'A kamat legnagyobb erteke 100 lehet!'
+                return 'A kamat legnagyobb értéke 100 lehet!'
             return None
 
 
@@ -135,36 +135,36 @@ order by
 
         #table column definitions last_payment
         columns=[
-                {'name': 'case_id', 'label': 'Ugy ID', 'field': 'case_id', 'sortable': True},
+                {'name': 'case_id', 'label': 'Ügy ID', 'field': 'case_id', 'sortable': True},
                 {'name': 'partner_name', 'label': 'Partner', 'field': 'partner_name', 'sortable': True},
                 {'name': 'batch_number', 'label': 'Batch', 'field': 'batch_number', 'sortable': True},
-                {'name': 'partner_case_number', 'label': 'Partner ugy szama', 'field': 'partner_case_number', 'sortable': True},
-                {'name': 'due_date', 'label': 'Eredeti hatarido', 'field': 'due_date', 'sortable': True},
-                {'name': 'amount', 'label': 'Vasarlaskori tartozas', 'field': 'amount', 'sortable': True},
-                {'name': 'interest_rate', 'label': 'Vasarlaskori kamat merteke', 'field': 'interest_rate', 'sortable': True},
-                {'name': 'last_payment', 'label': 'Utolso befizetes', 'field': 'last_payment', 'sortable': True},
-                {'name': 'current_due_date', 'label': 'Kamat szamitas napja', 'field': 'current_due_date', 'sortable': True},
-                {'name': 'current_amount', 'label': 'Aktualis toke tartozas', 'field': 'current_amount', 'sortable': True},
-                {'name': 'current_interest_amount', 'label': 'Aktualis kamat tartozas', 'field': 'current_interest_amount', 'sortable': True},
-                {'name': 'current_interest_rate', 'label': 'Aktualis kamat merteke', 'field': 'current_interest_rate', 'sortable': True},
-                {'name': 'sum_payed', 'label': 'Osszes befizetes', 'field': 'sum_payed', 'sortable': True},
-                {'name': 'sum_interest_payed', 'label': 'Elszamolt kamat', 'field': 'sum_interest_payed', 'sortable': True},
+                {'name': 'partner_case_number', 'label': 'Partner ügy száma', 'field': 'partner_case_number', 'sortable': True},
+                {'name': 'due_date', 'label': 'Eredeti határidő', 'field': 'due_date', 'sortable': True},
+                {'name': 'amount', 'label': 'Vásárláskori tartozás', 'field': 'amount', 'sortable': True},
+                {'name': 'interest_rate', 'label': 'Vásárláskori kamat mértéke', 'field': 'interest_rate', 'sortable': True},
+                {'name': 'last_payment', 'label': 'Utolsó befizetés', 'field': 'last_payment', 'sortable': True},
+                {'name': 'current_due_date', 'label': 'Kamat számitás napja', 'field': 'current_due_date', 'sortable': True},
+                {'name': 'current_amount', 'label': 'Aktuális tőke tartozás', 'field': 'current_amount', 'sortable': True},
+                {'name': 'current_interest_amount', 'label': 'Aktuális kamat tartozás', 'field': 'current_interest_amount', 'sortable': True},
+                {'name': 'current_interest_rate', 'label': 'Aktuális kamat mértéke', 'field': 'current_interest_rate', 'sortable': True},
+                {'name': 'sum_payed', 'label': 'Összes befizetés', 'field': 'sum_payed', 'sortable': True},
+                {'name': 'sum_interest_payed', 'label': 'Elszámolt kamat', 'field': 'sum_interest_payed', 'sortable': True},
                 {'name': 'created_at', 'label': 'Létrehozás időpontja', 'field': 'created_at', 'sortable': True}
             ]
 
 
         #UI element definitions
-        ui.label('Nyitott ugyek karbantartása').style('color: #6E93D6; font-size: 300%; font-weight: 300')
+        ui.label('Nyitott ügyek karbantartása').style('color: #6E93D6; font-size: 300%; font-weight: 300')
 
         with ui.row():
             update_card_button = ui.button('!', on_click=toggle_update_card_visibility).props('color=green')
 
         update_card = ui.card()
         with update_card:
-            updated_interest_rate = ui.number(label= 'Uj kamat merteke', suffix='%', format="%.000f", min=0.1, max=100.0, on_change=toggle_update_button, validation=validate_interest_rate, precision=0.1).props('clearable').props('size=25')
-            update_button = ui.button('Ugy modositasa', on_click=update_data).props('color=green')
+            updated_interest_rate = ui.number(label= 'Kamat mértéke', suffix='%', format="%.000f", min=0.1, max=100.0, on_change=toggle_update_button, validation=validate_interest_rate, precision=0.1).props('clearable').props('size=25')
+            update_button = ui.button('Ügy modositasa', on_click=update_data).props('color=green')
 
-        search_field = ui.input('Keresés', placeholder='írja be a keresendő ugy valamely adatát').props('clearable').props('size=100')
+        search_field = ui.input('Keresés', placeholder='írja be a keresendő ügy valamely adatát').props('clearable').props('size=100')
         data_table = ui.table.from_pandas(select_rows(), row_key='case_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
         search_field.bind_value(data_table, 'filter')
 

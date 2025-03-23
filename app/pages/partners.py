@@ -24,7 +24,7 @@ def show_partners():
 
         #database functions
         def select_rows():
-            return pd.read_sql_query('SELECT p.partner_id, p.name, p.sector_id, s.name as sector_name, p.created_at, p.updated_at, p.deleted_at FROM partners p, sectors s WHERE p.sector_id = s.sector_id and p.deleted_at is null ORDER BY p.partner_id desc', con=connection)
+            return pd.read_sql_query('SELECT p.partner_id, p.name, p.sector_id, s.name as sector_name, p.created_at::date FROM partners p, sectors s WHERE p.sector_id = s.sector_id and p.deleted_at is null ORDER BY p.partner_id desc', con=connection)
 
 
         def insert_row(partner_name: str, sector_id: int):

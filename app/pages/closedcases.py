@@ -9,8 +9,8 @@ import config.database
 
 
 def show_closed_cases():
-    with theme.frame('Zart ugyek karbantartása'):
-        ui.page_title('Zart ugyek karbantartása')
+    with theme.frame('Zárt ügyek'):
+        ui.page_title('Zárt ügyek')
 
         engine = create_engine(config.database.POOL_CONN_INFO)
         connection = engine.connect()
@@ -85,26 +85,26 @@ order by
 
         #table column definitions last_payment
         columns=[
-                {'name': 'case_id', 'label': 'Ugy ID', 'field': 'case_id', 'sortable': True},
+                {'name': 'case_id', 'label': 'Ügy ID', 'field': 'case_id', 'sortable': True},
                 {'name': 'partner_name', 'label': 'Partner', 'field': 'partner_name', 'sortable': True},
                 {'name': 'batch_number', 'label': 'Batch', 'field': 'batch_number', 'sortable': True},
-                {'name': 'partner_case_number', 'label': 'Partner ugy szama', 'field': 'partner_case_number', 'sortable': True},
-                {'name': 'closed_at', 'label': 'Lezaras datuma', 'field': 'closed_at', 'sortable': True},
-                {'name': 'due_date', 'label': 'Eredeti hatarido', 'field': 'due_date', 'sortable': True},
-                {'name': 'amount', 'label': 'Vasarlaskori tartozas', 'field': 'amount', 'sortable': True},
-                {'name': 'interest_rate', 'label': 'Vasarlaskori kamat merteke', 'field': 'interest_rate', 'sortable': True},
-                {'name': 'last_payment', 'label': 'Utolso befizetes', 'field': 'last_payment', 'sortable': True},
-                {'name': 'sum_payed', 'label': 'Osszes befizetes', 'field': 'sum_payed', 'sortable': True},
-                {'name': 'sum_interest_payed', 'label': 'Elszamolt kamat', 'field': 'sum_interest_payed', 'sortable': True},
-                {'name': 'sum_overpayment', 'label': 'Tulfizetes', 'field': 'sum_overpayment', 'sortable': True},
+                {'name': 'partner_case_number', 'label': 'Partner ügy száma', 'field': 'partner_case_number', 'sortable': True},
+                {'name': 'closed_at', 'label': 'Lezárás dátuma', 'field': 'closed_at', 'sortable': True},
+                {'name': 'due_date', 'label': 'Eredeti határidő', 'field': 'due_date', 'sortable': True},
+                {'name': 'amount', 'label': 'Vásárláskori tartozás', 'field': 'amount', 'sortable': True},
+                {'name': 'interest_rate', 'label': 'Vásárlaskori kamat mértéke', 'field': 'interest_rate', 'sortable': True},
+                {'name': 'last_payment', 'label': 'Utolsó befizetés', 'field': 'last_payment', 'sortable': True},
+                {'name': 'sum_payed', 'label': 'Összes befizetés', 'field': 'sum_payed', 'sortable': True},
+                {'name': 'sum_interest_payed', 'label': 'Elszámolt kamat', 'field': 'sum_interest_payed', 'sortable': True},
+                {'name': 'sum_overpayment', 'label': 'Túlfizetes', 'field': 'sum_overpayment', 'sortable': True},
                 {'name': 'created_at', 'label': 'Létrehozás időpontja', 'field': 'created_at', 'sortable': True}
             ]
 
 
         #UI element definitions
-        ui.label('Zart ugyek karbantartása').style('color: #6E93D6; font-size: 300%; font-weight: 300')
+        ui.label('Zárt ügyek').style('color: #6E93D6; font-size: 300%; font-weight: 300')
 
-        search_field = ui.input('Keresés', placeholder='írja be a keresendő ugy valamely adatát').props('clearable').props('size=100')
+        search_field = ui.input('Keresés', placeholder='írja be a keresendő ügy valamely adatát').props('clearable').props('size=100')
         data_table = ui.table.from_pandas(select_rows(), row_key='case_id', pagination=5, columns=columns).classes('w-full')
         search_field.bind_value(data_table, 'filter')
 

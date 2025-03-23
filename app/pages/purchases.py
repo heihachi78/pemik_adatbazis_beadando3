@@ -10,8 +10,8 @@ import process.load_purchase_data
 
 
 def show_purchases():
-    with theme.frame('Vasarlasok karbantartása'):
-        ui.page_title('Vasarlasok karbantartása')
+    with theme.frame('Vásárlások karbantartása'):
+        ui.page_title('Vásárlások karbantartása')
 
         engine = create_engine(config.database.POOL_CONN_INFO)
         connection = engine.connect()
@@ -28,7 +28,7 @@ def show_purchases():
 
         #database functions
         def select_rows():
-            return pd.read_sql_query('SELECT p.purchase_id, p.partner_id, s.name as partner_name, p.batch_number, p.purchased_at, p.batch_purchase_value, p.created_at, p.updated_at, p.deleted_at FROM purchases p, partners s WHERE p.partner_id = s.partner_id and p.deleted_at is null ORDER BY p.purchase_id desc', con=connection)
+            return pd.read_sql_query('SELECT p.purchase_id, p.partner_id, s.name as partner_name, p.batch_number, p.purchased_at::date, p.batch_purchase_value, p.created_at::date, p.updated_at, p.deleted_at FROM purchases p, partners s WHERE p.partner_id = s.partner_id and p.deleted_at is null ORDER BY p.purchase_id desc', con=connection)
 
 
         def insert_row(batch_number: str, partner_id: int, purchased_at: date, batch_purchase_value: int):
@@ -123,16 +123,16 @@ def show_purchases():
         #validation functions
         def validate_batch_number(value):
             if value and len(value) < 3:
-                return 'A batch szamanak legalább 3 karakter hosszúnak kell lennie!'
+                return 'A batch számának legalább 3 karakter hosszúnak kell lennie!'
             if value and len(value) > 100:
-                return 'A batch szama maximum 100 karakter hosszú lehet!'
+                return 'A batch száma maximum 100 karakter hosszú lehet!'
             return None
 
         def validate_batch_purchase_value(value):
             if value and value < 1:
-                return 'A batch erteke nem lehet 0 Ft vagy negativ!'
+                return 'A batch értéke nem lehet 0 Ft vagy negatív!'
             if value and value > 100_0000_000:
-                return 'A batch erteke nem lehet 1000000000 Ft-nal nagyobb!'
+                return 'A batch értéke nem lehet 1000000000 Ft-nál nagyobb!'
             return None
 
 
@@ -223,12 +223,12 @@ def show_purchases():
         #table column definitions
         #p.purchase_id, p.partner_id, s.name as partner_name, p.batch_number, p.purchased_at, p.batch_purchase_value, p.created_at, p.updated_at, p.deleted_at
         columns=[
-                {'name': 'purchase_id', 'label': 'Vasarlas ID', 'field': 'purchase_id', 'sortable': True},
+                {'name': 'purchase_id', 'label': 'Vásárlás ID', 'field': 'purchase_id', 'sortable': True},
                 {'name': 'partner_id', 'label': 'Partner ID', 'field': 'partner_id', 'sortable': True, 'classes': 'hidden', 'headerClasses': 'hidden'},
                 {'name': 'partner_name', 'label': 'Partner', 'field': 'partner_name', 'sortable': True},
-                {'name': 'batch_number', 'label': 'Batch szama', 'field': 'batch_number', 'sortable': True},
-                {'name': 'purchased_at', 'label': 'Vasarlas datuma', 'field': 'purchased_at', 'sortable': True},
-                {'name': 'batch_purchase_value', 'label': 'Vasarlas erteke', 'field': 'batch_purchase_value', 'sortable': True},
+                {'name': 'batch_number', 'label': 'Batch száma', 'field': 'batch_number', 'sortable': True},
+                {'name': 'purchased_at', 'label': 'Vásárlás dátuma', 'field': 'purchased_at', 'sortable': True},
+                {'name': 'batch_purchase_value', 'label': 'Vásárlás értéke', 'field': 'batch_purchase_value', 'sortable': True},
                 {'name': 'created_at', 'label': 'Létrehozás időpontja', 'field': 'created_at', 'sortable': True}
             ]
 
@@ -236,7 +236,7 @@ def show_purchases():
 
 
         #UI element definitions
-        ui.label('Vasarlasok karbantartása').style('color: #6E93D6; font-size: 300%; font-weight: 300')
+        ui.label('Vásárlások karbantartása').style('color: #6E93D6; font-size: 300%; font-weight: 300')
 
         with ui.row():
             new_card_button = ui.button('+', on_click=toggle_new_card_visibility).props('color=blue')
@@ -246,39 +246,39 @@ def show_purchases():
 
         new_card = ui.card()
         with new_card:
-            new_purchase_batch_number = ui.input(label= 'Uj batch szama', placeholder='írja be az új batch szamat', on_change=toggle_add_button, validation=validate_batch_number).props('clearable').props('size=100')
+            new_purchase_batch_number = ui.input(label= 'Új batch száma', placeholder='írja be az új batch számát', on_change=toggle_add_button, validation=validate_batch_number).props('clearable').props('size=100')
             new_purchase_partner_id = ui.select(label= 'Partner választása', options=partner_list, with_input=True, on_change=toggle_add_button).props('size=100')
-            new_purchase_batch_purchase_value = ui.number(label= 'Uj batch erteke', placeholder='írja be az új batch erteket', suffix='Ft', format="%.0f", min=1, max=100_0000_000, on_change=toggle_add_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
-            with ui.input('Date', on_change=toggle_add_button) as new_purchase_date:
+            new_purchase_batch_purchase_value = ui.number(label= 'Új batch értéke', placeholder='írja be az új batch értékét', suffix='Ft', format="%.0f", min=1, max=100_0000_000, on_change=toggle_add_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
+            with ui.input('Vásárlás dátuma', on_change=toggle_add_button) as new_purchase_date:
                 with ui.menu().props('no-parent-event') as menu:
                     with ui.date().bind_value(new_purchase_date):
                         with ui.row().classes('justify-end'):
                             ui.button('Close', on_click=menu.close).props('flat')
                 with new_purchase_date.add_slot('append'):
                     ui.icon('edit_calendar').on('click', menu.open).classes('cursor-pointer')
-            add_button = ui.button('Új vasarlas hozzáadása', on_click=add_data).props('color=blue')
+            add_button = ui.button('Új vásárlás hozzáadása', on_click=add_data).props('color=blue')
 
         delete_card = ui.card()
         with delete_card:
-            delete_button = ui.button('A kijelölt vasarlas(ok) törlése', on_click=delete_data).props('color=red')
+            delete_button = ui.button('A kijelölt vásárlás(ok) törlése', on_click=delete_data).props('color=red')
 
         update_card = ui.card()
         with update_card:
-            updated_purchase_batch_number = ui.input(label= 'Uj batch szama', on_change=toggle_update_button, validation=validate_batch_number).props('clearable').props('size=100')
+            updated_purchase_batch_number = ui.input(label= 'Batch száma', on_change=toggle_update_button, validation=validate_batch_number).props('clearable').props('size=100')
             updated_purchase_partner_id = ui.select(label= 'Partner választása', options=partner_list, with_input=True, on_change=toggle_update_button).props('size=100')
-            updated_purchase_batch_purchase_value = ui.number(label= 'Uj batch erteke', suffix='Ft', format="%.0f", min=1, max=100_0000_000, on_change=toggle_update_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
-            with ui.input('Date', on_change=toggle_update_button) as updated_purchase_date:
+            updated_purchase_batch_purchase_value = ui.number(label= 'Batch értéke', suffix='Ft', format="%.0f", min=1, max=100_0000_000, on_change=toggle_update_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
+            with ui.input('Vásárlás dátuma', on_change=toggle_update_button) as updated_purchase_date:
                 with ui.menu().props('no-parent-event') as menu:
                     with ui.date().bind_value(updated_purchase_date):
                         with ui.row().classes('justify-end'):
                             ui.button('Close', on_click=menu.close).props('flat')
                 with updated_purchase_date.add_slot('append'):
                     ui.icon('edit_calendar').on('click', menu.open).classes('cursor-pointer')
-            update_button = ui.button('Vasarlas modositasa', on_click=update_data).props('color=green')
+            update_button = ui.button('Vásárlás modositasa', on_click=update_data).props('color=green')
 
         load_card = ui.card()
         with load_card:
-            load_button = ui.button('Adatok betoltese a kijelolt vasarlashoz', on_click=load_data).props('color=purple')
+            load_button = ui.button('Adatok betöltése a kijelölt vásárláshoz', on_click=load_data).props('color=purple')
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő vasarlas valamely adatát').props('clearable').props('size=100')
         data_table = ui.table.from_pandas(select_rows(), row_key='purchase_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')

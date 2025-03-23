@@ -15,7 +15,7 @@ def show_sectors():
 
         #database functions
         def select_rows():
-            return pd.read_sql_query('select sector_id, name, created_at from sectors where deleted_at is null order by sector_id desc', con=connection)
+            return pd.read_sql_query('select sector_id, name, created_at::date from sectors where deleted_at is null order by sector_id desc', con=connection)
 
 
         def insert_row(sector_name: str):

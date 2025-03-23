@@ -14,7 +14,7 @@ rm -rf ${PWD}/fin/mnt/data
 rm -rf ${PWD}/pgadmin/azurecredentialcache
 rm -rf ${PWD}/pgadmin/sessions
 
-#rm -r ${PWD}/.venv
+rm -r ${PWD}/.venv
 
 docker stop srv1
 docker rm srv1
@@ -27,9 +27,9 @@ docker rm pgp
 docker stop fin
 docker rm fin
 docker network rm postgresnet
-#docker image rm pgs
-#docker image rm pgp
-#docker image rm dpage/pgadmin4
+docker image rm pgs
+docker image rm pgp
+docker image rm dpage/pgadmin4
 
 rm -rf ${PWD}/tools/data/telepules_megye.csv
 rm -rf ${PWD}/tools/data/utonevek_nem.csv
