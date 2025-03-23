@@ -1,13 +1,13 @@
 from datetime import date
 from sqlalchemy import create_engine, text
-from nicegui import ui
+from nicegui import ui, app
 from datetime import datetime
 import pandas as pd
 import theme
 import config.database
 
 
-
+@ui.page('/opencases')
 def show_open_cases():
     with theme.frame('Nyitott ugyek karbantartása'):
         ui.page_title('Nyitott ugyek karbantartása')
@@ -101,6 +101,8 @@ order by
 
         #validation functions
         def validate_interest_rate(value):
+            if value is None:
+                return 'A kamat nem lehet ures!'    
             if value and value < 0.1:
                 return 'A kamat legkisebb erteke 0.001 lehet!'
             if value and value > 100:
@@ -127,6 +129,12 @@ order by
                 updated_interest_rate.set_value(data_table.selected[0]['current_interest_rate'])
             else:
                 clear_updated_values()
+
+
+        def on_row_dblclick(e):
+            ui.notify(e.args[1]["case_id"])
+            app.storage.user['saved_data']["case_id"] = e.args[1]["case_id"]
+            ui.navigate.to('/closedcases/', new_tab=False)
 
 
         def clear_updated_values():
@@ -165,7 +173,7 @@ order by
             update_button = ui.button('Ugy modositasa', on_click=update_data).props('color=green')
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő ugy valamely adatát').props('clearable').props('size=100')
-        data_table = ui.table.from_pandas(select_rows(), row_key='case_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
+        data_table = ui.table.from_pandas(select_rows(), row_key='case_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
         search_field.bind_value(data_table, 'filter')
 
         #initial visibility settings

@@ -122,6 +122,8 @@ def show_purchases():
 
         #validation functions
         def validate_batch_number(value):
+            if value is None:
+                return 'Nem lehet ures a batch szama!'
             if value and len(value) < 3:
                 return 'A batch szamanak legalább 3 karakter hosszúnak kell lennie!'
             if value and len(value) > 100:
@@ -129,6 +131,8 @@ def show_purchases():
             return None
 
         def validate_batch_purchase_value(value):
+            if value is None:
+                return 'Nem lehet ures a batch erteke!'
             if value and value < 1:
                 return 'A batch erteke nem lehet 0 Ft vagy negativ!'
             if value and value > 100_0000_000:
@@ -266,7 +270,7 @@ def show_purchases():
         with update_card:
             updated_purchase_batch_number = ui.input(label= 'Uj batch szama', on_change=toggle_update_button, validation=validate_batch_number).props('clearable').props('size=100')
             updated_purchase_partner_id = ui.select(label= 'Partner választása', options=partner_list, with_input=True, on_change=toggle_update_button).props('size=100')
-            updated_purchase_batch_purchase_value = ui.number(label= 'Uj batch erteke', suffix='Ft', format="%.0f", min=1, max=100_0000_000, on_change=toggle_update_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
+            updated_purchase_batch_purchase_value = ui.number(label= 'Uj batch erteke', suffix='Ft', format="%.d", min=1, max=100_0000_000, step=1_000_000, on_change=toggle_update_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
             with ui.input('Date', on_change=toggle_update_button) as updated_purchase_date:
                 with ui.menu().props('no-parent-event') as menu:
                     with ui.date().bind_value(updated_purchase_date):
