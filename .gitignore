@@ -11,3 +11,4 @@ pgadmin/sessions
 .venv
 **/__pycache__
 tools/data/*.csv
+**/.DS_Store
