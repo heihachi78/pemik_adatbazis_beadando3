@@ -123,7 +123,7 @@ def show_purchases():
         #validation functions
         def validate_batch_number(value):
             if value is None:
-                return 'Nem lehet ures a batch szama!'
+                return 'Nem lehet üres a batch száma!'
             if value and len(value) < 3:
                 return 'A batch számának legalább 3 karakter hosszúnak kell lennie!'
             if value and len(value) > 100:
@@ -132,7 +132,7 @@ def show_purchases():
 
         def validate_batch_purchase_value(value):
             if value is None:
-                return 'Nem lehet ures a batch erteke!'
+                return 'Nem lehet üres a batch értéke!'
             if value and value < 1:
                 return 'A batch értéke nem lehet 0 Ft vagy negatív!'
             if value and value > 100_0000_000:
@@ -252,7 +252,7 @@ def show_purchases():
         with new_card:
             new_purchase_batch_number = ui.input(label= 'Új batch száma', placeholder='írja be az új batch számát', on_change=toggle_add_button, validation=validate_batch_number).props('clearable').props('size=100')
             new_purchase_partner_id = ui.select(label= 'Partner választása', options=partner_list, with_input=True, on_change=toggle_add_button).props('size=100')
-            new_purchase_batch_purchase_value = ui.number(label= 'Új batch értéke', placeholder='írja be az új batch értékét', suffix='Ft', format="%.0f", min=1, max=100_0000_000, on_change=toggle_add_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
+            new_purchase_batch_purchase_value = ui.number(label= 'Új batch értéke', placeholder='írja be az új batch értékét', suffix='Ft', format="%.d", min=1, max=100_0000_000, step=1_000_000, on_change=toggle_add_button, validation=validate_batch_purchase_value, precision=0).props('clearable').props('size=100')
             with ui.input('Vásárlás dátuma', on_change=toggle_add_button) as new_purchase_date:
                 with ui.menu().props('no-parent-event') as menu:
                     with ui.date().bind_value(new_purchase_date):

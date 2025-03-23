@@ -1,6 +1,3 @@
-#https://www.bitdoze.com/nicegui-pages/
-#https://www.youtube.com/watch?v=bW3ifL2hdfc
-
 import all_pages
 import home_page
 import theme

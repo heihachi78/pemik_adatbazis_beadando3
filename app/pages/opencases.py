@@ -173,7 +173,7 @@ order by
             update_button = ui.button('Ügy modositasa', on_click=update_data).props('color=green')
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő ügy valamely adatát').props('clearable').props('size=100')
-        data_table = ui.table.from_pandas(select_rows(), row_key='case_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
+        data_table = ui.table.from_pandas(select_rows(), row_key='case_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
         search_field.bind_value(data_table, 'filter')
 
         #initial visibility settings
