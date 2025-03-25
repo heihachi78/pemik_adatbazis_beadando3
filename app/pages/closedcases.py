@@ -1,6 +1,6 @@
 from datetime import date
 from sqlalchemy import create_engine, text
-from nicegui import ui
+from nicegui import ui, app
 from datetime import datetime
 import pandas as pd
 import theme
@@ -82,6 +82,11 @@ order by
         #visibility toggles
 
         #record selection handling
+        def on_row_dblclick(e):
+            ui.notify(e.args[1]["case_id"])
+            app.storage.user['saved_data']["case_id"] = e.args[1]["case_id"]
+            app.storage.user['saved_data']["open"] = False
+            ui.navigate.to('/debtors/', new_tab=False)
 
         #table column definitions last_payment
         columns=[
@@ -105,7 +110,7 @@ order by
         ui.label('Zárt ügyek').style('color: #6E93D6; font-size: 300%; font-weight: 300')
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő ügy valamely adatát').props('clearable').props('size=100')
-        data_table = ui.table.from_pandas(select_rows(), row_key='case_id', pagination=5, columns=columns).classes('w-full')
+        data_table = ui.table.from_pandas(select_rows(), row_key='case_id', pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
         search_field.bind_value(data_table, 'filter')
 
         #initial visibility settings

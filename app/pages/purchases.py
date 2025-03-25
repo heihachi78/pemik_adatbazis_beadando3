@@ -17,7 +17,7 @@ def show_purchases():
         connection = engine.connect()
 
 
-        #sector data for dropdown
+        #partner data for dropdown
         def get_partners():
             qr = pd.read_sql_query('SELECT partner_id, name FROM partners WHERE deleted_at is null ORDER BY name', con=connection)
             ret = {}
@@ -278,7 +278,7 @@ def show_purchases():
                             ui.button('Close', on_click=menu.close).props('flat')
                 with updated_purchase_date.add_slot('append'):
                     ui.icon('edit_calendar').on('click', menu.open).classes('cursor-pointer')
-            update_button = ui.button('Vásárlás modositasa', on_click=update_data).props('color=green')
+            update_button = ui.button('Vásárlás módositása', on_click=update_data).props('color=green')
 
         load_card = ui.card()
         with load_card:
