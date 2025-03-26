@@ -6,7 +6,7 @@ from nicegui import app, ui
 
 @ui.page('/')
 def index_page() -> None:
-    app.storage.user['saved_data'] = {}
+    app.storage.user['saved_data'] = {"case_id": -1, "open": False, "person_id": -1}
     with theme.frame('Home'):
         home_page.content()
 

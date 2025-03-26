@@ -89,7 +89,7 @@ def show_purchases():
             new_purchase_batch_purchase_value.sanitize()
             if new_purchase_batch_number.value and validate_batch_number(new_purchase_batch_number.value) is None and \
                 new_purchase_partner_id.value and new_purchase_partner_id.value in partner_list.keys() and \
-                new_purchase_batch_purchase_value.value > 0 and validate_batch_purchase_value(new_purchase_batch_purchase_value.value) is None and \
+                new_purchase_batch_purchase_value.value and new_purchase_batch_purchase_value.value > 0 and validate_batch_purchase_value(new_purchase_batch_purchase_value.value) is None and \
                 new_purchase_date.value:
                 add_button.enable()
             else:

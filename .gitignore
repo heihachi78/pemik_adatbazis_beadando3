@@ -12,3 +12,4 @@ pgadmin/sessions
 **/__pycache__
 tools/data/*.csv
 **/.DS_Store
+.nicegui

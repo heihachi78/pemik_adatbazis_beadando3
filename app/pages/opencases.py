@@ -132,7 +132,6 @@ order by
 
 
         def on_row_dblclick(e):
-            ui.notify(e.args[1]["case_id"])
             app.storage.user['saved_data']["case_id"] = e.args[1]["case_id"]
             app.storage.user['saved_data']["open"] = True
             ui.navigate.to('/debtors/', new_tab=False)

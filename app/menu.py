@@ -1,5 +1,7 @@
-from nicegui import ui
+from nicegui import ui, app
 
+def clear_storage():
+    app.storage.user['saved_data']["person_id"] = ''
 
 
 def menu() -> None:
@@ -9,5 +11,6 @@ def menu() -> None:
     ui.link('Vásárlások', '/purchases/').classes(replace='text-black')
     ui.link('Nyitott ügyek', '/opencases/').classes(replace='text-black')
     ui.link('Zárt ügyek', '/closedcases/').classes(replace='text-black')
+    ui.link('Személyek', '/persons/').classes(replace='text-black').on('click', clear_storage)
     ui.link('Riport', '/report/').classes(replace='text-black')
     ui.link('Info', '/info/').classes(replace='text-black')
