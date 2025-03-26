@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, text
-from nicegui import ui
+from nicegui import ui, app
 import pandas as pd
 import theme
 import config.database
@@ -161,6 +161,10 @@ def show_partners():
                 update_partner_name.set_value(None)
                 update_partner_sector_id.set_value(None)
 
+        def on_row_dblclick(e):
+            app.storage.user['saved_data']["partner_name"] = e.args[1]["name"]
+            ui.navigate.to('/purchases/', new_tab=False)
+
 
         #table column definitions
         columns=[
@@ -199,7 +203,8 @@ def show_partners():
             update_button = ui.button('A kijelölt partner módosítása', on_click=update_data).props('color=green')
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő partner valamely adatát').props('clearable').props('size=100')
-        data_table = ui.table.from_pandas(select_rows(), row_key='partner_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
+        data_table = ui.table.from_pandas(select_rows(), row_key='partner_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
+        data_table.set_filter(str(app.storage.user['saved_data']["sector_name"]))
         search_field.bind_value(data_table, 'filter')
 
 

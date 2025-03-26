@@ -278,6 +278,10 @@ order by
             new_to.set_value(None)
             new_person_id.set_value(None)
             new_account_id.set_value(None)
+
+        def on_row_dblclick(e):
+            app.storage.user['saved_data']["account"] = e.args[1]["account_number"]
+            ui.navigate.to('/accounts/', new_tab=False)
             
 
         #table column definitions
@@ -350,8 +354,11 @@ order by
             update_button = ui.button('Összerendelés módositása', on_click=update_data).props('color=green')
 
         search_field = ui.input(label='Keresés', placeholder='írja be a keresendő összerendelés valamely adatát').props('clearable').props('size=100')
-        data_table = ui.table.from_pandas(select_rows(), row_key='account_holder_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
-        #data_table.set_filter(str(app.storage.user['saved_data']["account_holder_id"]))
+        data_table = ui.table.from_pandas(select_rows(), row_key='account_holder_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
+        if app.storage.user['saved_data']["person_name"] and app.storage.user['saved_data']["person_name"] != '':
+            data_table.set_filter(str(app.storage.user['saved_data']["person_name"]))
+        else:
+            data_table.set_filter(str(app.storage.user['saved_data']["bank_account"]))
         search_field.bind_value(data_table, 'filter')
 
         #initial visibility settings

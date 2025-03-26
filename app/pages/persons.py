@@ -1,7 +1,6 @@
 from datetime import date
 from sqlalchemy import create_engine, text
 from nicegui import ui, app
-from datetime import datetime
 import pandas as pd
 import theme
 import config.database
@@ -324,6 +323,10 @@ ORDER BY
             new_death_date.set_value(None)
             new_gender_id.set_value(None)
             new_city_id.set_value(None)
+
+        def on_row_dblclick(e):
+            app.storage.user['saved_data']["person_name"] = e.args[1]["first_name"] + " " + e.args[1]["last_name"]
+            ui.navigate.to('/bank_accounts/', new_tab=False)
             
 
         #table column definitions
@@ -408,7 +411,7 @@ ORDER BY
             update_button = ui.button('Személy módositása', on_click=update_data).props('color=green')
 
         search_field = ui.input(label='Keresés', placeholder='írja be a keresendő személy valamely adatát').props('clearable').props('size=100')
-        data_table = ui.table.from_pandas(select_rows(), row_key='person_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
+        data_table = ui.table.from_pandas(select_rows(), row_key='person_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
         data_table.set_filter(str(app.storage.user['saved_data']["person_id"]))
         search_field.bind_value(data_table, 'filter')
 

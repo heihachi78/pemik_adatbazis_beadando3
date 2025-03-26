@@ -44,15 +44,15 @@ def initialize():
         connection.execute(text("INSERT INTO public.debtor_types(name, created_at) VALUES ('örökös', date'2015-01-01');"))
         connection.execute(text("INSERT INTO public.debtor_types(name, created_at) VALUES ('adóstárs', date'2015-01-01');"))
 
-        connection.execute(text("INSERT INTO public.genders(name, created_at) VALUES ('ferfi', date'2015-01-01');"))
-        connection.execute(text("INSERT INTO public.genders(name, created_at) VALUES ('no', date'2015-01-01');"))
+        connection.execute(text("INSERT INTO public.genders(name, created_at) VALUES ('férfi', date'2015-01-01');"))
+        connection.execute(text("INSERT INTO public.genders(name, created_at) VALUES ('nő', date'2015-01-01');"))
 
         connection.execute(text("INSERT INTO public.sectors(name, created_at) VALUES ('B2B', date'2015-01-01');"))
-        connection.execute(text("INSERT INTO public.sectors(name, created_at) VALUES ('Telekommunikacio', date'2015-01-01');"))
+        connection.execute(text("INSERT INTO public.sectors(name, created_at) VALUES ('Telekommunikáció', date'2015-01-01');"))
         connection.execute(text("INSERT INTO public.sectors(name, created_at) VALUES ('Bank', date'2015-01-01');"))
-        connection.execute(text("INSERT INTO public.sectors(name, created_at) VALUES ('Kozmu', date'2015-01-01');"))
+        connection.execute(text("INSERT INTO public.sectors(name, created_at) VALUES ('Kozmű', date'2015-01-01');"))
 
-        connection.execute(text("INSERT INTO public.partners(name, sector_id, created_at) VALUES ('Tartozas Kezelo Zrt.', 1, date'2015-03-05');"))
+        connection.execute(text("INSERT INTO public.partners(name, sector_id, created_at) VALUES ('Tartozás Kezelő Zrt.', 1, date'2015-03-05');"))
         connection.execute(text("INSERT INTO public.partners(name, sector_id, created_at) VALUES ('Debt Hungary Zrt.', 1, date'2019-07-11');"))
         connection.execute(text("INSERT INTO public.partners(name, sector_id, created_at) VALUES ('Vodafone', 2, date'2015-01-01');"))
         connection.execute(text("INSERT INTO public.partners(name, sector_id, created_at) VALUES ('Magyar Telekom Nyrt.', 2, date'2015-07-28');"))

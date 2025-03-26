@@ -58,7 +58,6 @@ from
 	debtor_types t
 where 
 	d.deleted_at is null and 
-	d.case_id = '''+str(app.storage.user['saved_data']["case_id"])+''' and
 	d.person_id = p.person_id and 
 	p.deleted_at is null and 
 	c.deleted_at is null and
@@ -269,6 +268,7 @@ order by
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő adós valamely adatát').props('clearable').props('size=100')
         data_table = ui.table.from_pandas(select_rows(), row_key='debtor_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
+        data_table.set_filter(str(app.storage.user['saved_data']["case_id"]))
         search_field.bind_value(data_table, 'filter')
 
 

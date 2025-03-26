@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, text
-from nicegui import ui
+from nicegui import ui, app
 import pandas as pd
 import theme
 import config.database
@@ -142,6 +142,9 @@ def show_sectors():
             else:
                 update_sector_name.set_value(None)
 
+        def on_row_dblclick(e):
+            app.storage.user['saved_data']["sector_name"] = e.args[1]["name"]
+            ui.navigate.to('/partners/', new_tab=False)
 
         #table column definitions
         columns=[
@@ -174,7 +177,7 @@ def show_sectors():
             update_button = ui.button('A kijelölt szektor módosítása', on_click=update_data).props('color=green')
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő szektor valamely adatát').props('clearable').props('size=100')
-        data_table = ui.table.from_pandas(select_rows(), row_key='sector_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
+        data_table = ui.table.from_pandas(select_rows(), row_key='sector_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
         search_field.bind_value(data_table, 'filter')
 
 

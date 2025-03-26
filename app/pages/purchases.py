@@ -1,6 +1,6 @@
 from datetime import date
 from sqlalchemy import create_engine, text
-from nicegui import ui, run
+from nicegui import ui, app
 from datetime import datetime
 import pandas as pd
 import theme
@@ -56,7 +56,7 @@ def show_purchases():
 
         def generate(partner_id: int, purchase_id: int, purchased_at: date, batch_purchase_value: int, created_at: date):
             process.load_purchase_data.new_purchase(partner_id=partner_id, purchase_id=purchase_id, purchased_at=datetime.strptime(purchased_at, "%Y-%m-%d").date(), batch_purchase_value=batch_purchase_value, created_at=datetime.fromisoformat(created_at).date())
-            ui.notify('Az uj rekordok be lettek töltve.')
+            ui.notify('Az új rekordok be lettek töltve.')
             return select_rows()
 
 
@@ -286,6 +286,7 @@ def show_purchases():
 
         search_field = ui.input('Keresés', placeholder='írja be a keresendő vasarlas valamely adatát').props('clearable').props('size=100')
         data_table = ui.table.from_pandas(select_rows(), row_key='purchase_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full')
+        data_table.set_filter(str(app.storage.user['saved_data']["partner_name"]))
         search_field.bind_value(data_table, 'filter')
 
         #initial visibility settings
