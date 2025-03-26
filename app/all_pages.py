@@ -8,6 +8,7 @@ from pages.info import show_info
 from pages.report import show_report
 from pages.debtors import show_debtors
 from pages.persons import show_persons
+from pages.bank_accounts import show_bank_accounts
 
 
 
@@ -19,6 +20,7 @@ def create() -> None:
     ui.page('/closedcases')(show_closed_cases)
     ui.page('/debtors')(show_debtors)
     ui.page('/persons')(show_persons)
+    ui.page('/bank_accounts')(show_bank_accounts)
     ui.page('/report')(show_report)
     ui.page('/info')(show_info)
 

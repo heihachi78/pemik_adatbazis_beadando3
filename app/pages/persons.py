@@ -283,9 +283,12 @@ ORDER BY
         #record selection handling
         def handle_selection():
             if delete_card.visible and data_table.selected:
+                s = []
                 for sl in data_table.selected:
                     if has_payment(sl['person_id']) > 0:
-                        data_table.selected.remove(sl)
+                        s.append(sl)
+                for ss in s:
+                    data_table.selected.remove(ss)
                 data_table.update()
             toggle_delete_button()
             toggle_update_button()

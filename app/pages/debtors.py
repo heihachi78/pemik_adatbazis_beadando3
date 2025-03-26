@@ -196,18 +196,21 @@ order by
 
         #record selection handling
         def handle_selection():
+            if delete_card.visible and data_table.selected:
+                s = []
+                for sl in data_table.selected:
+                    if has_payment(sl['person_id']) > 0:
+                        s.append(sl)
+                for ss in s:
+                    data_table.selected.remove(ss)
+                data_table.update()
+            toggle_delete_button()
+            toggle_update_button()
             if data_table.selected:
                 updated_debtor_type_id.set_value(data_table.selected[0]['debtor_type_id'])
-                if delete_card.visible:
-                    for sl in data_table.selected:
-                        if has_payment(sl['person_id']) > 0:
-                            data_table.selected.remove(sl)
-                    data_table.update()
             else:
                 clear_updated_values()
                 clear_new_values()
-            toggle_delete_button()
-            toggle_update_button()
 
         def clear_updated_values():
             updated_debtor_type_id.set_value(None)
