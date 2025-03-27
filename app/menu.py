@@ -21,5 +21,6 @@ def menu() -> None:
     ui.link('Személyek', '/persons/').classes(replace='text-black').on('click', clear_storage)
     ui.link('Számlatulajok', '/bank_accounts/').classes(replace='text-black').on('click', clear_storage)
     ui.link('Bankszámlák', '/accounts/').classes(replace='text-black').on('click', clear_storage)
+    ui.link('Ügy áttekintése', '/case_overview/').classes(replace='text-black')
     ui.link('Riport', '/report/').classes(replace='text-black')
     ui.link('Info', '/info/').classes(replace='text-black')

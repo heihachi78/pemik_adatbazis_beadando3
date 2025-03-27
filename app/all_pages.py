@@ -10,7 +10,7 @@ from pages.debtors import show_debtors
 from pages.persons import show_persons
 from pages.bank_accounts import show_bank_accounts
 from pages.accounts import show_accounts
-
+from pages.case_overview import show_case_overview
 
 
 def create() -> None:
@@ -23,6 +23,7 @@ def create() -> None:
     ui.page('/persons')(show_persons)
     ui.page('/bank_accounts')(show_bank_accounts)
     ui.page('/accounts')(show_accounts)
+    ui.page('/case_overview')(show_case_overview)
     ui.page('/report')(show_report)
     ui.page('/info')(show_info)
 
