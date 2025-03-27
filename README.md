@@ -8,6 +8,18 @@ Tóth István (J0P7MF)
 A beadandó feladatban egy valóságos adósságkezelő rendszer egyszerűsített változatát képeztem le. A mintául szolgáló rendszer több száz táblát, sok terrabájtnyi adatot, több tízezer sornyi tárolt eljárást tartalmaz és legalább 8 különböző alkalmazással van kapcsolata, az egyszerűsítés ezért elkerülhetetlen volt. Az eredeti rendszer tábláiból csak azokat valósítottam meg amelyeken keresztül egy egyszerűsített folyamat bemutatható és azokat is a szükséges minimális oszlop tartalommal. A cégtitkok megőrzése érdekében az eredeti rendszer tábla és oszlopnevei meg lettek változtatva, és más adatbázis kezelő rendszert használtam, hogy semmilyen átjárhatóság ne legyen a kettő rendszer között.
 A megvalósított rendszerben az adósságkezelő cég fő ügyviteli folyamatát lehet végig követni, ami az adósságok partnerektől való megvásárlása a kamatok kiszámolása, a befizetések nyilvántartása (amely befizetéseket egy külön pénzügyi adatbázis szolgáltat), befizetések leosztása és az ügyek lezárása a tartozás megfizetése után.
 
+## Telepítés
+### Szükséges eszközök
+A repository klónozása mellett szükséges, hogy a futtatásra használt gépen telepítve legyenenek az alábbi eszközök:
+- python
+    MacOS esetében 3.13.2 verzióval volt tesztelve, Linuxon 3.XX.X verzióval.
+- Docker Desktop
+- internet kapcsolat
+
+### Telepítés és futtatás
+A gyökér könyvtárban található *install.sh* fájl végzi a telepítést, amely összeállítja a szükséges Docker konténereket, elindítja őket, összeállítja az adatbázis szerkezetét és adatait is. Ha ez megtörtént, akkor a *run.sh* segítségével lehet a webes alkalmazást elindítani, melynek hatására az alapértelmezett böngészőben megnyílik a felület.
+Az *uninstall.sh* segítségével a Docker konténerek és az alkalmazás és a repository visszaállítható a kiinduló állapotára.
+
 ## Alkalmazott technológiák
 Az adatbázis kezelő rendszer a PostgreSQL(1), ezt egészíti ki a Pgpool(2) ami a load balancingot látja el, a replikáció felügyeletét a rempgr(3) valósítja meg, míg a jobok futtatását a pgAgent(4) látja el. A fejlesztés során a pgAdmin(5) környezetet alkalmaztam az adatbázis tervezéséhez és fejlesztéséhez, míg a felhasználói alkalmazást Visual Studio Code(6) segítségével fejlesztettem Python(7) nyelven NiceGUI(8) keretrendszerrel. Az egész rendszer Docker(9) környezetben fut, minden főbb komponens egy önálló konténerben fut.
 
