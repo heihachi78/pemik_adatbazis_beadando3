@@ -12,7 +12,8 @@ A megvalósított rendszerben az adósságkezelő cég fő ügyviteli folyamatá
 ### Szükséges eszközök
 A repository klónozása mellett szükséges, hogy a futtatásra használt gépen telepítve legyenenek az alábbi eszközök:
 - python
-    MacOS esetében 3.13.2 verzióval volt tesztelve, Linuxon 3.XX.X verzióval.
+    - MacOS esetében 3.13.2 verzióval volt tesztelve,
+    - Ubuntu esetében 3.12.3 verzióval volt tesztelve.
 - Docker Desktop
 - internet kapcsolat
 
