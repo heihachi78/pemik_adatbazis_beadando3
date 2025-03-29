@@ -348,8 +348,8 @@ ORDER BY
                 {'name': 'death_date', 'label': 'Halál dátuma', 'field': 'death_date', 'sortable': True},
                 {'name': 'gender_id', 'label': 'Gender ID', 'field': 'gender_id', 'sortable': True, 'classes': 'hidden', 'headerClasses': 'hidden'},
                 {'name': 'gender_name', 'label': 'Neme', 'field': 'gender_name', 'sortable': True},
-                {'name': 'created_at', 'label': 'Létrehozás időpontja', 'field': 'created_at', 'sortable': True},
-                {'name': 'caselist', 'label': 'caselist', 'field': 'caselist', 'sortable': True, 'classes': 'hidden', 'headerClasses': 'hidden'}
+                {'name': 'caselist', 'label': 'Kapcsolódó ügyek', 'field': 'caselist', 'sortable': True},
+                {'name': 'created_at', 'label': 'Létrehozás időpontja', 'field': 'created_at', 'sortable': True}
             ]
 
         city_list = get_cities()
@@ -423,31 +423,31 @@ ORDER BY
         data_table.set_filter(str(app.storage.user['saved_data']["person_id"]))
         search_field.bind_value(data_table, 'filter')
 
-        data_table.add_slot('header', r'''
-            <q-tr :props="props">
-                <q-th auto-width />
-                <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                    {{ col.label }}
-                </q-th>
-            </q-tr>
-        ''')
-        data_table.add_slot('body', r'''
-            <q-tr :props="props">
-                <q-td auto-width>
-                    <q-btn size="sm" color="accent" round dense
-                        @click="props.expand = !props.expand"
-                        :icon="props.expand ? 'remove' : 'add'" />
-                </q-td>
-                <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                    {{ col.value }}
-                </q-td>
-            </q-tr>
-            <q-tr v-show="props.expand" :props="props">
-                <q-td colspan="100%">
-                    <div class="text-left">Kapcsolódó ügyek: {{ props.row.caselist }}</div>
-                </q-td>
-            </q-tr>
-        ''')
+        #data_table.add_slot('header', r'''
+        #    <q-tr :props="props">
+        #        <q-th auto-width />
+        #        <q-th v-for="col in props.cols" :key="col.name" :props="props">
+        #            {{ col.label }}
+        #        </q-th>
+        #    </q-tr>
+        #''')
+        #data_table.add_slot('body', r'''
+        #    <q-tr :props="props">
+        #        <q-td auto-width>
+        #            <q-btn size="sm" color="accent" round dense
+        #                @click="props.expand = !props.expand"
+        #                :icon="props.expand ? 'remove' : 'add'" />
+        #        </q-td>
+        #        <q-td v-for="col in props.cols" :key="col.name" :props="props">
+        #            {{ col.value }}
+        #        </q-td>
+        #    </q-tr>
+        #    <q-tr v-show="props.expand" :props="props">
+        #        <q-td colspan="100%">
+        #            <div class="text-left">Kapcsolódó ügyek: {{ props.row.caselist }}</div>
+        #        </q-td>
+        #    </q-tr>
+        #''')
 
         #initial visibility settings
         toggle_add_button()
