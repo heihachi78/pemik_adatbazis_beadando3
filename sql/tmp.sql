@@ -18,3 +18,8 @@ CREATE TRIGGER log_case_updates_trg
     FOR EACH ROW
     WHEN (OLD.* IS DISTINCT FROM NEW.*)
     EXECUTE FUNCTION log_case_updates();
+
+
+
+https://www.postgresql.org/docs/current/transaction-iso.html
+

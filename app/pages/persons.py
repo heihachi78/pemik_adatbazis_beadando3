@@ -36,6 +36,12 @@ def show_persons():
         #database functions
         def select_rows():
             return pd.read_sql_query('''
+WITH caselist as(
+select xd.person_id, STRING_AGG(concat('(', xc.partner_case_number, ') ', xc.case_id), ', ') caselist
+from cases xc, debtors xd
+where xc.deleted_at is null and xd.deleted_at is null and xd.case_id = xc.case_id
+group by xd.person_id
+)
 SELECT 
 	p.person_id, 
 	p.first_name, 
@@ -48,9 +54,10 @@ SELECT
 	p.death_date, 
 	p.gender_id,
 	g."name" as gender_name,
-	p.created_at::date
+	p.created_at::date,
+    cl.caselist
 FROM 
-	public.persons p,
+	public.persons p LEFT JOIN caselist cl on p.person_id = cl.person_id,
 	cities c,
 	genders g
 WHERE
@@ -341,7 +348,8 @@ ORDER BY
                 {'name': 'death_date', 'label': 'Halál dátuma', 'field': 'death_date', 'sortable': True},
                 {'name': 'gender_id', 'label': 'Gender ID', 'field': 'gender_id', 'sortable': True, 'classes': 'hidden', 'headerClasses': 'hidden'},
                 {'name': 'gender_name', 'label': 'Neme', 'field': 'gender_name', 'sortable': True},
-                {'name': 'created_at', 'label': 'Létrehozás időpontja', 'field': 'created_at', 'sortable': True}
+                {'name': 'created_at', 'label': 'Létrehozás időpontja', 'field': 'created_at', 'sortable': True},
+                {'name': 'caselist', 'label': 'caselist', 'field': 'caselist', 'sortable': True, 'classes': 'hidden', 'headerClasses': 'hidden'}
             ]
 
         city_list = get_cities()
@@ -414,6 +422,32 @@ ORDER BY
         data_table = ui.table.from_pandas(select_rows(), row_key='person_id', on_select=handle_selection, pagination=5, columns=columns).classes('w-full').on('rowDblclick', on_row_dblclick)
         data_table.set_filter(str(app.storage.user['saved_data']["person_id"]))
         search_field.bind_value(data_table, 'filter')
+
+        data_table.add_slot('header', r'''
+            <q-tr :props="props">
+                <q-th auto-width />
+                <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                    {{ col.label }}
+                </q-th>
+            </q-tr>
+        ''')
+        data_table.add_slot('body', r'''
+            <q-tr :props="props">
+                <q-td auto-width>
+                    <q-btn size="sm" color="accent" round dense
+                        @click="props.expand = !props.expand"
+                        :icon="props.expand ? 'remove' : 'add'" />
+                </q-td>
+                <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                    {{ col.value }}
+                </q-td>
+            </q-tr>
+            <q-tr v-show="props.expand" :props="props">
+                <q-td colspan="100%">
+                    <div class="text-left">Kapcsolódó ügyek: {{ props.row.caselist }}</div>
+                </q-td>
+            </q-tr>
+        ''')
 
         #initial visibility settings
         toggle_add_button()
