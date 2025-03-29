@@ -41,6 +41,7 @@ BEGIN
 		days_range := (cms_record.current_due_date - cms_record.last_payment_date) - 2;
 		if days_range < 3 or then continue; end if;
 		r_payment_date := cms_record.last_payment_date + 2 + (RANDOM() * days_range)::INTEGER;
+		if r_payment_date > CURRENT_DATE then continue; end if;
 		days_range := r_payment_date - cms_record.last_payment_date;
 		if days_range < 1 then continue; end if;
 		r_payment_amount := (cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)))) * ((RANDOM() * 0.5) + 0.5);
