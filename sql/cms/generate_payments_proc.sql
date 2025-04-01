@@ -9,8 +9,8 @@ DECLARE
 	interest NUMERIC;
 	payment_amount NUMERIC;
 	days_range INTEGER;
-	bank_account_id INTEGER;
-	person_id INTEGER;
+	c_bank_account_id INTEGER;
+	c_person_id INTEGER;
 	r_payment_id INTEGER;
 	c_debt_amount_covered NUMERIC;
 	c_interest_amount_covered NUMERIC;
@@ -45,12 +45,14 @@ BEGIN
 		calc_to := calc_from + (RANDOM() * days_range)::INTEGER;
 		interest := public.calculate_interest(case_record.current_amount, case_record.interest_rate, calc_from, calc_to);
 
-		SELECT INTO bank_account_id, person_id p.bank_account_id , p.person_id
+		SELECT INTO c_bank_account_id, c_person_id p.bank_account_id , p.person_id
 		FROM debtors s, account_holders p 
-		WHERE s.case_id = case_record.case_id AND p.person_id = s.person_id AND p.valid_from <= calc_to
+		WHERE s.case_id = case_record.case_id AND p.person_id = s.person_id
 		ORDER BY RANDOM() LIMIT 1;
 
-		if bank_account_id is null or person_id is null then continue; end if;
+		if c_bank_account_id is null or c_person_id is null then continue; end if;
+
+		update account_holders h set valid_from = calc_to, created_at = calc_to where h.person_id = c_person_id and h.bank_account_id = c_bank_account_id and h.valid_from > calc_to;
 
 		update 
 			debts
@@ -84,8 +86,8 @@ BEGIN
 		VALUES (
 			payment_amount,
 			calc_to,
-			bank_account_id,
-			person_id,
+			c_bank_account_id,
+			c_person_id,
 			case_record.case_id,
 			calc_to
 		) RETURNING payment_id INTO r_payment_id;
