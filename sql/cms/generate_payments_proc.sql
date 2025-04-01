@@ -41,7 +41,7 @@ BEGIN
 	LOOP
 		calc_from := case_record.calculated_from;
 		calc_to := case_record.calculated_to;
-		days_range := calc_to - calc_from;
+		days_range := least(calc_to - calc_from, 60);
 		calc_to := calc_from + (RANDOM() * days_range)::INTEGER;
 		interest := public.calculate_interest(case_record.current_amount, case_record.interest_rate, calc_from, calc_to);
 

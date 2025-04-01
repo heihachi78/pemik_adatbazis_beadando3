@@ -28,9 +28,9 @@ BEGIN
 			c.deleted_at is null and
 			c.case_id = p_case_id
 	LOOP
-		calc_to := CURRENT_DATE;
 		calc_from := case_record.current_due_date;
-		if calc_from >= calc_to then continue; end if;
+		calc_to := calc_from + 60;
+		if calc_from >= CURRENT_DATE then continue; end if;
 		interest := public.calculate_interest(case_record.current_amount, case_record.current_interest_rate, calc_from, calc_to);
 
 		if case_record.debt_id is not null then
