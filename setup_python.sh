@@ -10,8 +10,8 @@ done
 source .venv/bin/activate
 echo "changed to virtual environment .venv"
 python3 -m pip install --upgrade pip
-pip3 install nicegui
-pip3 install psycopg2-binary
-pip3 install sqlalchemy
-pip3 install pandas
-pip3 install tqdm
+pip3 install -q nicegui
+pip3 install -q psycopg2-binary
+pip3 install -q sqlalchemy
+pip3 install -q pandas
+pip3 install -q tqdm
