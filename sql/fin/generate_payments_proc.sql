@@ -38,7 +38,7 @@ BEGIN
     LOOP
 		if RANDOM() < 0.6 then continue; end if;
 		if last_case_id = cms_record.case_id then continue; end if;
-		days_range := least((cms_record.current_due_date - cms_record.last_payment_date) - 2, 60);
+		days_range := least((cms_record.current_due_date - cms_record.last_payment_date) - 2, 180);
 		if days_range < 3 or then continue; end if;
 		r_payment_date := cms_record.last_payment_date + 2 + (RANDOM() * days_range)::INTEGER;
 		if r_payment_date > CURRENT_DATE then continue; end if;

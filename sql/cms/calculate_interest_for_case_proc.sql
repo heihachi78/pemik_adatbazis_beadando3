@@ -29,7 +29,7 @@ BEGIN
 			c.case_id = p_case_id
 	LOOP
 		calc_from := case_record.current_due_date;
-		calc_to := calc_from + 60;
+		calc_to := calc_from + 180;
 		if calc_from >= CURRENT_DATE then continue; end if;
 		interest := public.calculate_interest(case_record.current_amount, case_record.current_interest_rate, calc_from, calc_to);
 
