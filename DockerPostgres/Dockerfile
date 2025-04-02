@@ -9,6 +9,7 @@ RUN ./apt.postgresql.org.sh
 RUN apt-get install -y pgagent
 RUN apt-get install -y rsync
 RUN apt-get install -y ssh
+RUN apt-get install -y postgresql-17-wal2json
 RUN apt-get clean
 RUN rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
 ENV PATH="/usr/lib/postgresql/17/bin:$PATH"
