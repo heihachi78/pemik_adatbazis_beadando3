@@ -36,7 +36,7 @@ BEGIN
 		ORDER BY
 			f.case_id
     LOOP
-		if RANDOM() < 0.4 then continue; end if;
+		if RANDOM() < 0.6 then continue; end if;
 		if last_case_id = cms_record.case_id then continue; end if;
 		days_range := least((cms_record.current_due_date - cms_record.last_payment_date) - 2, 60);
 		if days_range < 3 or then continue; end if;
@@ -47,7 +47,7 @@ BEGIN
 		if days_range < 1 then continue; end if;
 		r_payment_amount := (cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date) / (cms_record.current_due_date - cms_record.last_payment_date)))) * ((RANDOM() * 0.5) + 0.5);
 		if cms_record.current_amount < 5000 then
-			r_payment_amount := cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date + 1) / (cms_record.current_due_date - cms_record.last_payment_date)));
+			r_payment_amount := cms_record.current_amount + (cms_record.current_interest_amount * ((r_payment_date - cms_record.last_payment_date + 2) / (cms_record.current_due_date - cms_record.last_payment_date)));
 		end if;
 		INSERT INTO public.payments(
 			amount, 
