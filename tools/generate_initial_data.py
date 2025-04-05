@@ -16,12 +16,12 @@ PURCHASE_COUNT = 240
 MIN_BATCH_VALUE = 250_000
 MAX_BATCH_VALUE = 25_000_000
 MIN_AMOUNT = 25_000
-MAX_AMOUNT = 250_000
+MAX_AMOUNT = 500_000
 AMOUNT_OUTLIER_RATE = 10
-MARGIN = 1.02
+MARGIN = 1.04
 TYPE2_DEBTOR_RATE = 100
 TYPE3_DEBTOR_RATE = 10
-MIN_INTEREST = 3
+MIN_INTEREST = 5
 MAX_INTEREST = 25
 CLOSED_CASE_RATE = 0.4
 
@@ -195,8 +195,8 @@ def insert_case(purchase_id, partner_case_number, due_date, amount, created_at, 
 
 def generate_random_case(purchase_id, partner_id, purchased_at, created_at):
     partner_case_number = generate_random_case_number(partner_id)
-    from_date = purchased_at -  timedelta(days=np.random.randint(62, 365))
-    to_date = purchased_at - timedelta(days=np.random.randint(31, 62))
+    from_date = purchased_at -  timedelta(days=np.random.randint(92, 365))
+    to_date = purchased_at - timedelta(days=np.random.randint(31, 90))
     due_date = generate_random_date(from_date=from_date, to_date=to_date)
     amount = np.random.randint(MIN_AMOUNT, MAX_AMOUNT)
     interest_rate = np.random.randint(MIN_INTEREST, MAX_INTEREST) / 100.
