@@ -49,6 +49,7 @@ BEGIN
 		if calc_to < case_record.purchased_at then
 			calc_to := case_record.purchased_at + days_range;
 		end if;
+		if calc_to >= CURRENT_DATE then continue; end if;
 		interest := public.calculate_interest(case_record.current_amount, case_record.interest_rate, calc_from, calc_to);
 
 		SELECT INTO c_bank_account_id, c_person_id p.bank_account_id , p.person_id
