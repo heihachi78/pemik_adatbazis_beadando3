@@ -46,8 +46,8 @@ BEGIN
 		calc_to := case_record.calculated_to;
 		days_range := least(calc_to - calc_from, 180);
 		calc_to := calc_from + (RANDOM() * days_range)::INTEGER;
-		if calc_to < purchased_at then
-			calc_to := purchased_at + days_range;
+		if calc_to < case_record.purchased_at then
+			calc_to := case_record.purchased_at + days_range;
 		end if;
 		interest := public.calculate_interest(case_record.current_amount, case_record.interest_rate, calc_from, calc_to);
 
