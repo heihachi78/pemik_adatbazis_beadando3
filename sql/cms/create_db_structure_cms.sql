@@ -527,7 +527,7 @@ CREATE OR REPLACE VIEW public.fin_publicated_data_v
     c.current_amount,
     c.current_interest_amount,
     COALESCE(os.overpayment, 0::numeric) AS overpayment,
-    COALESCE(lpd.last_payment_date, c.due_date) AS last_payment_date,
+    GREATEST(COALESCE(lpd.last_payment_date::date, c.due_date::date), r.purchased_at::date) AS last_payment_date,
     c.current_due_date,
     h.valid_to,
     c.case_id,
@@ -539,7 +539,8 @@ CREATE OR REPLACE VIEW public.fin_publicated_data_v
     account_holders h,
     persons p,
     debtors d,
-    bank_accounts a
+    bank_accounts a,
+    purchases r
   WHERE 
     c.deleted_at IS NULL AND 
     (c.closed_at IS NULL OR (c.closed_at IS NOT NULL AND coalesce(os.overpayment, 0) > 0::numeric)) AND 
@@ -550,6 +551,8 @@ CREATE OR REPLACE VIEW public.fin_publicated_data_v
     d.case_id = c.case_id AND 
     a.bank_account_id = h.bank_account_id AND 
     a.deleted_at IS NULL AND 
+    r.purchase_id = c.purchase_id AND
+    r.deleted_at IS NULL AND
     h.valid_from < COALESCE(lpd.last_payment_date::timestamp with time zone, now());
 
 ALTER TABLE public.fin_publicated_data_v

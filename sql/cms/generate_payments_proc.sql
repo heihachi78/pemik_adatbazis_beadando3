@@ -30,19 +30,25 @@ BEGIN
 			c.current_interest_rate,
 			c.current_due_date,
 			c.current_interest_amount,
-			d.debt_id
+			d.debt_id,
+			t.purchased_at::date
 		from 
 			cases c,
-			debts d
+			debts d,
+			purchases t
 		where 
 			c.closed_at is null and 
 			c.case_id = d.case_id and 
-			d.open_debt = true
+			d.open_debt = true and
+			t.purchase_id = c.purchase_id
 	LOOP
 		calc_from := case_record.calculated_from;
 		calc_to := case_record.calculated_to;
 		days_range := least(calc_to - calc_from, 180);
 		calc_to := calc_from + (RANDOM() * days_range)::INTEGER;
+		if calc_to < purchased_at then
+			calc_to := purchased_at + days_range;
+		end if;
 		interest := public.calculate_interest(case_record.current_amount, case_record.interest_rate, calc_from, calc_to);
 
 		SELECT INTO c_bank_account_id, c_person_id p.bank_account_id , p.person_id
@@ -70,9 +76,9 @@ BEGIN
 		select into sum_covered_interest_amount sum(interest_amount_covered) from payed_debts where debt_id in (select d.debt_id from debts d where d.case_id = case_record.case_id);
 		remaining_interest_amount := sum_interest_amount - coalesce(sum_covered_interest_amount, 0.0);
 		
-		payment_amount := ((case_record.current_amount + remaining_interest_amount) * ((RANDOM() * 0.25) + 0.75));
+		payment_amount := ((case_record.current_amount + remaining_interest_amount) * RANDOM());
 		
-		IF payment_amount < 25000 THEN
+		IF payment_amount < 10000 THEN
 			payment_amount := (case_record.current_amount + remaining_interest_amount);
 		END IF;
 
